@@ -1,0 +1,18 @@
+# Arquivos de Sistema e IDEs (PyCharm)
+.idea/
+*.iml
+
+# Ambiente Virtual
+venv/
+.venv/
+__pycache__/
+*/*.pyc
+
+# Arquivos de Banco de Dados e Dados
+instance/
+site.db
+*.sqlite
+*.db
+
+# Arquivos de Configuração Confidenciais
+.env

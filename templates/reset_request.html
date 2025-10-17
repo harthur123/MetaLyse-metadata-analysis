@@ -1,0 +1,16 @@
+       <h1>Solicitar Redefinição de Senha</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('reset_request') }}">
+    <div>
+        <label>Email da Conta</label>
+        <input type="email" name="email" required>
+    </div>
+    <button type="submit">Solicitar Link de Redefinição</button>
+</form>
