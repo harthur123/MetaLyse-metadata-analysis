@@ -1,0 +1,22 @@
+<h1>Definir Nova Senha</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('reset_token', token=token) }}">
+    <div>
+        <label>Nova Senha</label>
+        <input type="password" name="password" required>
+    </div>
+    <div>
+        <label>Confirme a Nova Senha</label>
+        <input type="password" name="confirm_password" required>
+    </div>
+    <button type="submit">Redefinir Senha</button>
+</form>
+
+<p>A senha deve ter no mínimo 6 caracteres, com letra maiúscula, minúscula, número e símbolo.</p>
