@@ -5,9 +5,10 @@ from flask import Flask
 
 from .config import config_map
 from .extensions import db, bcrypt, login_manager, mail
-from .models.User import User
+from .models.user import User
+from .models.history import History
 # CORREÇÃO: Importa o nome correto do Blueprint da API, que é 'api_bp'
-from .controller.api import api_bp
+from .controllers.api import api_bp
 
 
 def create_app(config_name='default'):

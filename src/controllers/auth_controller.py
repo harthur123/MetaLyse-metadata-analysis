@@ -1,10 +1,16 @@
-# Em: src/controllers/auth_controller.py
 
 from flask import Blueprint, request, jsonify, current_app
-from ..models.User import User
+from ..models.user import User
 from .. import db
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
-from ..models.User import User # Importe seu modelo User
+
+# --- IMPORTAÇÃO CORRIGIDA ---
+# Importa os validadores do novo local (utils)
+from ..utils.validators import (
+    validate_email_format, 
+    validate_password_policy, 
+    send_reset_email
+)
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -16,8 +22,16 @@ def register():
     email = data.get('email')
     password = data.get('password')
 
+    # --- VALIDAÇÃO MELHORADA ---
     if not username or not email or not password:
         return jsonify({"message": "Campos incompletos"}), 400
+
+    if not validate_email_format(email):
+        return jsonify({"message": "Formato de e-mail inválido"}), 400
+        
+    if not validate_password_policy(password):
+        return jsonify({"message": "Senha fraca. Deve ter pelo menos 6 caracteres, maiúscula, minúscula, número e símbolo."}), 400
+    # --- FIM DA VALIDAÇÃO ---
 
     if User.query.filter_by(email=email).first():
         return jsonify({"message": "Email já cadastrado"}), 409
@@ -28,7 +42,6 @@ def register():
     new_user = User(username=username, email=email)
     new_user.set_password(password)
     
-    # Bônus: O primeiro usuário a se cadastrar vira Admin
     if User.query.count() == 0:
         new_user.role = 'admin'
         
@@ -52,14 +65,13 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"message": "Email ou senha inválidos"}), 401
 
-    # A 'identity' do token será o ID do usuário.
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
 
     return jsonify(
         access_token=access_token,
         refresh_token=refresh_token,
-        user_role=user.role # Envia o 'role' para o Angular!
+        user_role=user.role 
     ), 200
 
 @auth_bp.route('/reset-password-request', methods=['POST'])
@@ -69,20 +81,11 @@ def reset_password_request():
     email = data.get('email')
     user = User.query.filter_by(email=email).first()
 
+    # --- LÓGICA DE EMAIL CORRIGIDA ---
     if user:
-        token = user.get_reset_token()
-        
-        # --- IMPORTANTE ---
-        # Em produção, você deve ENVIAR UM EMAIL (com Flask-Mail)
-        # print(f"TOKEN PARA {email}: {token}") # Para debug
-        # TODO: Enviar email: f"Seu link: http://localhost:4200/reset-password?token={token}"
-        
-        # Por agora, vamos retornar o token no console para debug
-        print(f"--- TOKEN DE RESET PARA {email} (copie e cole) ---")
-        print(token)
-        print("--------------------------------------------------")
+        send_reset_email(user) 
+    # --- FIM DA LÓGICA DE EMAIL ---
 
-    # Sempre retorne sucesso, para não vazar se um email existe ou não
     return jsonify({"message": "Se o email estiver cadastrado, um link será enviado."}), 200
 
 @auth_bp.route('/reset-password', methods=['POST'])
@@ -96,6 +99,12 @@ def reset_password():
 
     if not user:
         return jsonify({"message": "Token inválido ou expirado"}), 400
+
+    # --- VALIDAÇÃO ---
+    # Verifica se a NOVA senha também é forte
+    if not validate_password_policy(new_password):
+        return jsonify({"message": "Senha fraca. Deve ter pelo menos 6 caracteres, maiúscula, minúscula, número e símbolo."}), 400
+    # --- FIM DA VALIDAÇÃO ---
 
     user.set_password(new_password)
     db.session.commit()

@@ -1,4 +1,3 @@
-# run.py (Corrigido)
 
 import os
 from dotenv import load_dotenv
