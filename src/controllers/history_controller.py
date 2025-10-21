@@ -1,46 +1,57 @@
+from flask import Blueprint, jsonify, request
+from ..services import history_service  
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from ..utils.decorators import admin_required 
 
-from flask import jsonify, request
-from services.history_service import get_all_history
+history_bp = Blueprint('history_bp', __name__)
 
-
-def history_route():
-    """
-    Retorna todo o histórico de arquivos analisados
-    """
+@history_bp.route('/my-history', methods=['GET'])
+@jwt_required()
+def get_my_history_route():
+    """Retorna o histórico do usuário que está logado."""
     try:
-
-        data = get_all_history()
+        user_id = get_jwt_identity()
+        data = history_service.get_history_by_user_id(user_id)
         return jsonify({
             "status": "success",
             "historico": data
         }), 200
-    
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Erro ao recuperar histórico: {e}"
-        }), 500
-    
-def save_history_route():
-    """
-    Adiciona uma nova entrada ao histórico (chamado após uma análise)
-    """
+        return jsonify({"status": "error", "message": str(e)}), 500
 
+@history_bp.route('/all-history', methods=['GET'])
+@admin_required()  # <-- Protegido! Só admin pode ver.
+def get_all_history_route():
+    """Retorna TODO o histórico de TODOS os usuários."""
     try:
+        data = history_service.get_all_history()
+        return jsonify({
+            "status": "success",
+            "historico": data
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@history_bp.route('/save', methods=['POST'])
+@jwt_required()
+def save_history_route():
+    """Salva uma nova entrada de histórico para o usuário logado."""
+    try:
+        user_id = get_jwt_identity()
         data = request.get_json()
+        
         file_name = data.get("file_name")
         file_type = data.get("file_type")
-        user = data.get("user", "Anônimo")
 
-        record = add_history(file_name, file_type, user)
+        if not file_name or not file_type:
+            return jsonify({"status": "error", "message": "file_name e file_type são obrigatórios"}), 400
+
+        record = history_service.add_history(file_name, file_type, user_id)
         
         return jsonify({
             "status": "success",
             "registro": record
-        }), 201
+        }), 201 
     
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Erro ao salvar histórico: {e}"
-        }), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
