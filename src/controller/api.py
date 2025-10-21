@@ -1,4 +1,4 @@
-# src/routes/api.py (CORRIGIDO)
+# src/controller/api.py (CORRIGIDO)
 
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, current_user, logout_user, login_required
@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 # Importações dos módulos internos
 from ..extensions import db, bcrypt
 from ..models.User import User
-from ..utils.validators import validate_password_policy, validate_email_format, send_reset_email
+from ..service.validators import validate_password_policy, validate_email_format, send_reset_email
 
 # Novo Blueprint para API
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')

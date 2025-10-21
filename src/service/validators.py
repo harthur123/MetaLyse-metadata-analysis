@@ -1,4 +1,4 @@
-# src/utils/validators.py (CORRIGIDO)
+# src/service/validators.py (CORRIGIDO)
 import re
 # Importa url_for do Flask (não mais necessário importar o Message, pois já está no escopo)
 from flask import url_for

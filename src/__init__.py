@@ -7,7 +7,7 @@ from .config import config_map
 from .extensions import db, bcrypt, login_manager, mail
 from .models.User import User
 # CORREÇÃO: Importa o nome correto do Blueprint da API, que é 'api_bp'
-from .routes.api import api_bp
+from .controller.api import api_bp
 
 
 def create_app(config_name='default'):
