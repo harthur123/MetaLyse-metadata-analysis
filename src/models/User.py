@@ -12,13 +12,13 @@ class User(db.Model, UserMixin): # <--- COMBINADO
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False) # (do seu HEAD, 80 é > 20)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False) # (do seu HEAD)
+    password = db.Column(db.String(256), nullable=False) # (do seu HEAD)
     
     # --- CAMPO CHAVE PARA ADMIN vs USER --- (do seu HEAD)
     role = db.Column(db.String(20), nullable=False, default='user') # 'user' ou 'admin'
 
     # --- Relacionamento com History --- (do seu HEAD)
-    histories = db.relationship('History', 
+    histories = db.relationship("History", 
                                   back_populates='author', 
                                   lazy=True, 
                                   cascade="all, delete-orphan")

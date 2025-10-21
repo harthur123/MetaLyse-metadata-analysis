@@ -14,7 +14,7 @@ class History(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # Relação que liga ao objeto User
-    author = db.relationship('User', back_populates='histories')
+    author = db.relationship("User", back_populates='histories')
 
     def __repr__(self):
         return f'<History {self.file_name}>'

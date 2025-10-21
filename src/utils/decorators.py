@@ -2,13 +2,11 @@
 
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from ..models.User import User  # Importa seu modelo User
+from ..models.user import User  
 from flask import jsonify
 
 def admin_required():
-    """
-    Decorador customizado que verifica se o usuário logado tem o 'role' de 'admin'.
-    """
+    
     def wrapper(fn):
         @wraps(fn)
         @jwt_required() # 1. Primeiro, garante que o usuário está logado
