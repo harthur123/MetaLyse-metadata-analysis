@@ -1,0 +1,39 @@
+/* ARQUIVO: src/app/cadastro/cadastro.css (Igual ao login.css) */
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Centraliza na tela, garantindo que não colida com o header */
+  height: calc(100vh - 64px - 48px); 
+  background-color: #fafafa;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px; 
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-title {
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}

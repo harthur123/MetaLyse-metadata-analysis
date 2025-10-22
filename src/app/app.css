@@ -1,0 +1,104 @@
+
+.app-toolbar {
+  background-color: #f5f5f5; 
+  color: #333; 
+  height: 64px;
+  box-shadow: none;
+  border-bottom: 1px solid #ddd;
+}
+
+.url-display {
+  background-color: #e0e0e0;
+  border-radius: 15px;
+  padding: 4px 12px;
+  margin: 0 16px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #616161;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: #333;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.mat-icon-button {
+  color: #616161;
+}
+
+.navigation-tabs {
+  margin-bottom: 30px; 
+}
+
+.main-content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+
+
+.logo-container {
+  width: 150px;
+  height: 150px;
+  
+}
+
+.logo-text {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.welcome-title {
+  font-size: 36px;
+  font-weight: 500;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.description-text {
+  max-width: 650px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+/* Estilos para a Informação de Segurança */
+.security-info {
+  display: flex;
+  align-items: flex-start;
+  max-width: 650px;
+  font-size: 16px;
+  text-align: left;
+  line-height: 1.5;
+  padding: 10px;
+}
+
+.check-icon {
+  margin-right: 10px;
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+  color: #4CAF50; 
+}
+
+.bold-text {
+  font-weight: 600;
+  color: #333;
+}
+
+
+
+
+
