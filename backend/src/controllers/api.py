@@ -1,5 +1,4 @@
 
-
 from flask import Blueprint, request, jsonify
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
@@ -12,10 +11,16 @@ from ..models.user import User
 from ..utils.validators import validate_password_policy, validate_email_format, send_reset_email
 
 # Novo Blueprint para API
-api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
+api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 
 # ---------------- Rotas de Autenticação ----------------
+
+@api_bp.route("/status", methods=["GET"])
+def get_status():
+    """Rota para o Angular verificar se a API está online."""
+    # Se o Angular ver esta resposta, ele sabe que o backend está vivo.
+    return jsonify({"status": "API online"}), 200
 
 @api_bp.route("/register", methods=['POST'])
 def register_api():
