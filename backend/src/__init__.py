@@ -1,22 +1,23 @@
-# src/__init__.py (Corrigido)
 
 import os
 from flask import Flask
+from flask_cors import CORS 
 
 from .config import config_map
 from .extensions import db, bcrypt, login_manager, mail
 from .models.user import User
 from .models.history import History
-# CORREÇÃO: Importa o nome correto do Blueprint da API, que é 'api_bp'
 from .controllers.api import api_bp
 
 
 def create_app(config_name='default'):
-    """Função factory para criar a instância da aplicação Flask."""
     app = Flask(__name__)
 
+    # Permite que o 'http://localhost:4200' (Angular)
+    # acesse os recursos da sua API (rotas que começam com /api/)
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:4200"}})
+
     # 1. Configuração da Aplicação
-    # Carrega a configuração específica (development, production ou default)
     app.config.from_object(config_map[config_name])
 
     # 2. Inicialização das Extensões
@@ -25,15 +26,13 @@ def create_app(config_name='default'):
     mail.init_app(app)
 
     login_manager.init_app(app)
-    # Define a view de login apontando para o endpoint da API
     login_manager.login_view = 'api.login_api'
     login_manager.login_message_category = 'info'
 
     # 3. Registro dos Blueprints (Rotas)
-    # Registra o Blueprint da API com o nome correto
     app.register_blueprint(api_bp)
 
-    # 4. Cria tabelas no contexto do aplicativo (necessário para SQLite/desenvolvimento)
+    # 4. Cria tabelas no contexto do aplicativo
     with app.app_context():
         db.create_all()
 
