@@ -14,5 +14,11 @@ site.db
 *.sqlite
 *.db
 
+# Pasta de instância (uploads, db, etc)
+/instance/
+
+# Arquivo do ExifTool
+exiftool.exe
+
 # Arquivos de Configuração Confidenciais
 .env

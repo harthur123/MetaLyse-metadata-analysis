@@ -8,6 +8,7 @@ from .extensions import db, bcrypt, login_manager, mail
 from .models.user import User
 from .models.history import History
 from .controllers.api import api_bp
+from .controllers.metadata_controller import metadata_bp
 
 
 def create_app(config_name='default'):
@@ -31,6 +32,7 @@ def create_app(config_name='default'):
 
     # 3. Registro dos Blueprints (Rotas)
     app.register_blueprint(api_bp)
+    app.register_blueprint(metadata_bp, url_prefix='/api/metadata')
 
     # 4. Cria tabelas no contexto do aplicativo
     with app.app_context():
