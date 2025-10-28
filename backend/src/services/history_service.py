@@ -2,7 +2,7 @@
 
 from .. import db  
 from ..models.history import History  
-from ..models.User import User        
+from ..models.user import User        
 
 def add_history(file_name, file_type, user_id, status="Concluído"):
     

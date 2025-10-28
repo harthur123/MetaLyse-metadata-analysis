@@ -25,6 +25,8 @@ class Config:
     MAIL_PASSWORD = str(os.environ.get('MAIL_PASSWORD'))
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
 
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # Limite de 16MB
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
