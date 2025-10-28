@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { Cadastro } from './cadastro/cadastro';
 import { HomeComponent } from './home/home';
 import { Login } from './login/login';
+import { Cadastro } from './cadastro/cadastro';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
