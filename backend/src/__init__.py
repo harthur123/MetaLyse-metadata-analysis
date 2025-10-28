@@ -30,7 +30,8 @@ def create_app(config_name='default'):
     login_manager.login_message_category = 'info'
 
     # 3. Registro dos Blueprints (Rotas)
-    app.register_blueprint(api_bp)
+    app.register_blueprint(api_bp, url_prefix='/api')
+
 
     # 4. Cria tabelas no contexto do aplicativo
     with app.app_context():

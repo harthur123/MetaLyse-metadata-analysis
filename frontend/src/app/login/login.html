@@ -4,21 +4,20 @@
       <mat-card-title>Login MetalYse</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form class="auth-form">
+      <form class="auth-form" (ngSubmit)="onLogin()">
         <mat-form-field appearance="outline">
-          <mat-label>Usuário</mat-label>
-          <input matInput [(ngModel)]="username" name="username" required>
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" [(ngModel)]="email" name="email" required>
         </mat-form-field>
-
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
           <input matInput type="password" [(ngModel)]="password" name="password" required>
         </mat-form-field>
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit">Entrar</button>
+          <button mat-button type="button" [routerLink]="['/cadastro']">Criar Conta</button>
+        </div>
       </form>
     </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="onLogin()">Entrar</button>
-      <button mat-button [routerLink]="['/cadastro']">Criar Conta</button>
-    </mat-card-actions>
   </mat-card>
 </div>

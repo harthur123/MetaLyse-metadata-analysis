@@ -1,39 +1,60 @@
-/* ARQUIVO: src/app/login.css */
+/* ARQUIVO: src/app/home/home.css */
 
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* Centraliza na tela, garantindo que não colida com o header */
-  height: calc(100vh - 64px); 
-  background-color: #fafafa;
+.main-content-container {
+    padding: 40px; /* Espaçamento interno geral */
+    text-align: center; /* Centraliza o texto e elementos inline/inline-block */
+    max-width: 800px; /* Limita a largura do conteúdo para não esticar muito */
+    margin: 40px auto; /* Centraliza o container na página e dá margem superior/inferior */
+    background-color: #ffffff; /* Fundo branco para o container */
+    border-radius: 8px; /* Cantos arredondados */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Sombra suave */
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 400px; 
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.logo-container {
+    margin-bottom: 30px; /* Espaço abaixo do logo */
 }
 
-mat-card-title {
-  font-size: 24px;
-  font-weight: 500;
-  text-align: center;
-  margin-bottom: 20px;
+.logo-image {
+    width: 150px; /* Tamanho maior para o logo */
+    height: auto;
+    display: block; /* Para poder aplicar margin auto para centralizar */
+    margin: 0 auto; /* Centraliza a imagem */
 }
 
-.auth-form {
-  display: flex;
-  flex-direction: column;
+.welcome-title {
+    font-size: 3em; /* Título maior */
+    color: #2c3e50; /* Cor escura */
+    margin-bottom: 20px;
 }
 
-.mat-form-field {
-  width: 100%;
+.description-text {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.6; /* Espaçamento entre linhas */
+    margin-bottom: 30px;
 }
 
-mat-card-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
+.security-info {
+    display: flex; /* Para alinhar o ícone e o texto lado a lado */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    font-size: 1em;
+    color: #333;
+    padding: 15px 20px;
+    background-color: #eaf7f2; /* Fundo suave para a caixa de informação */
+    border-radius: 5px;
+    border: 1px solid #d4ede3;
+    max-width: 500px; /* Limita a largura da caixa de segurança */
+    margin: 20px auto 0; /* Centraliza a caixa e dá margem */
+}
+
+.security-info .check-icon {
+    color: #28a745; /* Cor verde para o ícone de check */
+    font-size: 24px;
+    margin-right: 10px; /* Espaço entre o ícone e o texto */
+}
+
+.security-info .bold-text {
+    font-weight: bold;
+    color: #212529;
 }
