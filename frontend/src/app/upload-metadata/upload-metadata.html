@@ -1,0 +1,65 @@
+<input 
+  type="file" 
+  #fileInput 
+  (change)="onFileSelected($event)" 
+  hidden
+>
+
+<div class="analysis-wrapper">
+  
+  <h2>Análise de Metadados</h2>
+  <p class="subtitle">Faça upload de um arquivo para visualizar seus metadados extraídos</p>
+
+  <div class="upload-container">
+    
+    <div 
+      class="drop-zone"
+      [class.dragging]="isDragging"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <div class="icon-wrapper">
+        <mat-icon>upload</mat-icon> </div>
+      
+      <p class="drop-text">Arraste e solte seu arquivo aqui</p>
+      
+      <span class="separator">ou</span>
+      
+      <button 
+        type="button" 
+        class="select-button" 
+        (click)="fileInput.click()">
+        Selecionar Arquivo
+      </button>
+
+    </div>
+
+    <div class="upload-info" *ngIf="selectedFile">
+      <span *ngIf="!uploading" class="file-name">{{ selectedFile.name }}</span>
+      
+      <mat-progress-bar *ngIf="uploading" mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+      <span *ngIf="uploading" class="progress-text">{{ uploadProgress }}%</span>
+    </div>
+    
+    <button 
+      type="button"
+      class="submit-button" 
+      (click)="uploadFile()" 
+      [disabled]="!selectedFile || uploading">
+      {{ uploading ? 'Enviando...' : 'Analisar' }}
+    </button>
+    
+  </div>
+
+  <div class="preview-container" *ngIf="previewUrl && !uploading">
+    <img *ngIf="isImageFile()" [src]="previewUrl" alt="Preview" />
+    <iframe *ngIf="isPdfFile()" [src]="previewUrl" width="100%" height="400px"></iframe>
+  </div>
+
+  <div class="metadata-container" *ngIf="metadata">
+    <h3>Metadados Recebidos:</h3>
+    <pre>{{ metadata | json }}</pre>
+  </div>
+
+</div>

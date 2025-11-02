@@ -1,0 +1,23 @@
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <mat-card-title>Definir Nova Senha</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="auth-form" (ngSubmit)="definirSenha()">
+        <mat-form-field appearance="outline">
+          <mat-label>Nova Senha</mat-label>
+          <input matInput type="password" [(ngModel)]="novaSenha" name="novaSenha" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirmar Senha</mat-label>
+          <input matInput type="password" [(ngModel)]="confirmarSenha" name="confirmarSenha" required />
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">Definir Senha</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
