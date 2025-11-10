@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..models.user import User
 from .. import db
+from ..extensions import bcrypt
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 # --- IMPORTAÇÃO CORRIGIDA ---
@@ -39,8 +40,16 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({"message": "Username já cadastrado"}), 409
 
-    new_user = User(username=username, email=email)
-    new_user.set_password(password)
+    # --- AQUI ESTÁ A CORREÇÃO ---
+    
+    # 1. Gere o hash da senha vindo do JSON
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    # 2. Passe o HASH (e não a senha pura) ao criar o novo usuário
+    new_user = User(username=username, email=email, password=hashed_password)
+    
+    # (A linha "new_user.set_password(password)" foi removida)
+    # --- FIM DA CORREÇÃO ---
     
     if User.query.count() == 0:
         new_user.role = 'admin'

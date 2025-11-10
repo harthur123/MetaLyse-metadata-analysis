@@ -1,8 +1,7 @@
-# src/service/validators.py (CORRIGIDO)
+# Em: src/utils/validators.py
 import re
-# Importa url_for do Flask (não mais necessário importar o Message, pois já está no escopo)
-from flask import url_for
-from flask_mail import Message  # <--- Importamos Message para a função
+from flask import current_app
+from flask_mail import Message
 from ..extensions import mail
 
 # Regex para validação de senha (deve ter pelo menos 6 caracteres, maiúsculas, minúsculas, número e símbolo)
@@ -22,17 +21,33 @@ def validate_email_format(email):
 
 
 def send_reset_email(user):
-    """Envia um e-mail com o link de redefinição de senha para o usuário."""
+    """
+    Gera um token e envia um e-mail com um link para o FRONTEND (Angular).
+    """
     # O user.get_reset_token() está definido na classe User (em src/models/User.py)
     token = user.get_reset_token()
 
-    # Message() usa automaticamente as configurações de MAIL_DEFAULT_SENDER do app
-    msg = Message('Redefinição de Senha', recipients=[user.email])
+    # --- AQUI ESTÁ A LÓGICA CORRETA ---
+    # O link que enviamos no e-mail deve apontar para o seu
+    # aplicativo Angular, que estará rodando em localhost:4200.
+    reset_link = f"http://localhost:4200/reset-password?token={token}"
 
-    # CORREÇÃO: Garante que o endpoint 'api.reset_token_api' seja usado
-    msg.body = f'''Para redefinir sua senha, visite o seguinte link:
-{url_for('api.reset_token_api', token=token, _external=True)}
+    # Cria a mensagem de e-mail
+    msg = Message(
+        subject='[MetaLyse] Redefinição de Senha',
+        sender=current_app.config['MAIL_DEFAULT_SENDER'],
+        recipients=[user.email],
+        body=f'''Para redefinir sua senha, visite o seguinte link:
+{reset_link}
 
-Se você não solicitou isso, ignore este e-mail. O link expira em 30 minutos.
+Se você não fez esta solicitação, por favor, ignore este e-mail.
 '''
-    mail.send(msg)
+    )
+    
+    # Tenta enviar o e-mail
+    try:
+        mail.send(msg)
+    except Exception as e:
+        current_app.logger.error(f"Falha ao enviar e-mail de reset: {e}")
+        # Se falhar, nós (por enquanto) não quebramos o app, 
+        # mas logamos o erro no terminal.

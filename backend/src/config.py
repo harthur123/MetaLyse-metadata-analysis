@@ -11,7 +11,7 @@ class Config:
         raise ValueError("SECRET_KEY não foi configurada! Verifique seu arquivo .env.")
 
     # Configurações do Banco de Dados
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///site.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Boa prática para evitar warnings
 
     # Configurações do Flask-Mail
@@ -24,6 +24,9 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = str(os.environ.get('MAIL_PASSWORD'))
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
+
+    # ... outras configs ...
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  
 
 
 class DevelopmentConfig(Config):

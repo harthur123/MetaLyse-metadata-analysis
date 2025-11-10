@@ -4,10 +4,10 @@ from flask import Flask
 from flask_cors import CORS 
 
 from .config import config_map
-from .extensions import db, bcrypt, login_manager, mail
+from .extensions import db, bcrypt, login_manager, mail, jwt
 from .models.user import User
-from .models.history import History
 from .controllers.api import api_bp
+from .controllers.metadata_controller import metadata_bp
 
 
 def create_app(config_name='default'):
@@ -24,6 +24,7 @@ def create_app(config_name='default'):
     db.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
+    jwt.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = 'api.login_api'
@@ -31,6 +32,7 @@ def create_app(config_name='default'):
 
     # 3. Registro dos Blueprints (Rotas)
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(metadata_bp, url_prefix='/api/metadata')
 
 
     # 4. Cria tabelas no contexto do aplicativo
