@@ -102,8 +102,12 @@ class MetadataService:
             current_app.logger.error(f"Erro ao ler PDF '{file_path}': {e}")
         return metadata
 
+    # Em: src/services/metadata_service.py
+
     def _extract_image_metadata(self, file_path):
         metadata = {}
+        
+        # 1. Pillow (Mantemos igual)
         try:
             with Image.open(file_path) as img:
                 metadata['width'] = img.width
@@ -115,15 +119,29 @@ class MetadataService:
         except Exception as e:
             current_app.logger.warning(f"Erro Pillow: {e}")
 
+        # 2. ExifTool (CORRIGIDO AQUI)
         try:
-            exe_path = os.path.join(current_app.root_path, '..', 'exiftool.exe')
+            # Caminho do executável (Já está correto, mantemos assim)
+            exe_path = os.path.join(current_app.root_path, '..', 'exiftool', 'exiftool.exe')
+            
             if not os.path.exists(exe_path):
-                raise FileNotFoundError("exiftool.exe não encontrado")
-            with exiftool.ExifTool(executable=exe_path) as et:
-                exif_metadata = et.get_metadata(file_path)
+                raise FileNotFoundError("exiftool.exe não encontrado em backend/exiftool/")
+            
+            # --- MUDANÇA 1: Usamos ExifToolHelper ---
+            with exiftool.ExifToolHelper(executable=exe_path) as et:
+                # --- MUDANÇA 2: Pegamos o primeiro item da lista [0] ---
+                # O get_metadata agora retorna uma lista de dicionários
+                exif_metadata_list = et.get_metadata(file_path)
+                exif_metadata = exif_metadata_list[0]
+            
+            # Limpeza das chaves (Mantemos igual)
             cleaned = {k.split(':')[-1]: v for k, v in exif_metadata.items()}
             metadata['exiftool_data'] = cleaned
+        
         except Exception as e:
+            # Loga o erro para vermos no terminal
             current_app.logger.warning(f"Erro ExifTool: {e}")
+            # Importante: Se o Pillow funcionou, não vamos quebrar o request,
+            # apenas retornamos o que conseguimos (dados básicos).
 
         return metadata
