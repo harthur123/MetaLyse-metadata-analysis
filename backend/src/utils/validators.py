@@ -22,32 +22,55 @@ def validate_email_format(email):
 
 def send_reset_email(user):
     """
-    Gera um token e envia um e-mail com um link para o FRONTEND (Angular).
+    Gera um token e envia um e-mail HTML (bonito) com um link 
+    para o FRONTEND (Angular).
     """
-    # O user.get_reset_token() está definido na classe User (em src/models/User.py)
     token = user.get_reset_token()
-
-    # --- AQUI ESTÁ A LÓGICA CORRETA ---
-    # O link que enviamos no e-mail deve apontar para o seu
-    # aplicativo Angular, que estará rodando em localhost:4200.
+    
+    # O link para o Angular (Frontend) está correto
     reset_link = f"http://localhost:4200/reset-password?token={token}"
 
-    # Cria a mensagem de e-mail
+    # --- CORREÇÃO AQUI ---
+    
+    # 1. Crie o corpo em HTML (para o "Clique aqui")
+    html_body = f"""
+    <p>Olá {user.username},</p>
+    <p>Para redefinir sua senha, por favor, clique no botão abaixo. O link é válido por 30 minutos.</p>
+    <p style="margin-top: 20px; margin-bottom: 20px;">
+        <a href="{reset_link}" 
+           target="_blank"
+           style="background-color: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+           Clique Aqui para Redefinir sua Senha
+        </a>
+    </p>
+    <p>Se você não fez esta solicitação, por favor, ignore este e-mail.</p>
+    <p><small>Se o botão não funcionar, copie e cole este link no seu navegador: {reset_link}</small></p>
+    """
+    
+    # 2. Crie o corpo em Texto Puro (como um fallback)
+    text_body = f"""
+    Olá {user.username},
+    
+    Para redefinir sua senha, copie e cole o seguinte link no seu navegador:
+    {reset_link}
+
+    Se você não fez esta solicitação, por favor, ignore este e-mail.
+    O link expira em 30 minutos.
+    """
+
+    # 3. Crie a mensagem
     msg = Message(
         subject='[MetaLyse] Redefinição de Senha',
         sender=current_app.config['MAIL_DEFAULT_SENDER'],
-        recipients=[user.email],
-        body=f'''Para redefinir sua senha, visite o seguinte link:
-{reset_link}
-
-Se você não fez esta solicitação, por favor, ignore este e-mail.
-'''
+        recipients=[user.email]
     )
     
-    # Tenta enviar o e-mail
+    # 4. Anexe os dois corpos (o cliente de e-mail escolherá qual usar)
+    msg.body = text_body  # O fallback de texto
+    msg.html = html_body  # O e-mail bonito em HTML
+
     try:
         mail.send(msg)
     except Exception as e:
         current_app.logger.error(f"Falha ao enviar e-mail de reset: {e}")
-        # Se falhar, nós (por enquanto) não quebramos o app, 
-        # mas logamos o erro no terminal.
+        raise e

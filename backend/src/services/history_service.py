@@ -1,24 +1,10 @@
 from ..extensions import db
-from ..models.history import History
+from ..models.metadata import Metadata # <-- Importa o modelo Metadata
 from ..models.user import User
 from sqlalchemy import or_
 
 class HistoryService:
     
-    def create_entry(self, filename, filetype, filesize, user_id, metadata_json):
-        """Cria um novo registro no histórico."""
-        new_record = History(
-            filename=filename,
-            filetype=filetype,
-            filesize=filesize,
-            user_id=user_id,
-            extracted_data=metadata_json,
-            status="Concluído"
-        )
-        db.session.add(new_record)
-        db.session.commit()
-        return new_record
-
     def get_history(self, user_id=None, search_term=None, is_admin=False):
         """
         Busca o histórico.
@@ -26,7 +12,9 @@ class HistoryService:
         - Se is_admin=True: Retorna de TODOS (Visão Admin).
         - search_term: Filtra por nome do arquivo, tipo ou nome do autor (se admin).
         """
-        query = History.query
+        
+        # Começa a query na tabela Metadata
+        query = Metadata.query
 
         # 1. Filtro de Permissão (Usuário vs Admin)
         if not is_admin:
@@ -43,23 +31,23 @@ class HistoryService:
                 # Admin pode buscar por Nome do Arquivo OU Nome do Autor
                 query = query.join(User).filter(
                     or_(
-                        History.filename.ilike(search),
+                        Metadata.filename.ilike(search),
                         User.username.ilike(search),
                         User.email.ilike(search)
                     )
                 )
             else:
                 # Usuário comum busca apenas nos seus arquivos
-                query = query.filter(History.filename.ilike(search))
+                query = query.filter(Metadata.filename.ilike(search))
 
         # 3. Ordenação (Mais recente primeiro)
-        records = query.order_by(History.created_at.desc()).all()
+        records = query.order_by(Metadata.upload_date.desc()).all()
         
-        return [h.to_dict() for h in records]
+        return [h.to_dict() for h in records] # <-- Usa o método to_dict()
 
-    def get_by_id(self, history_id, user_id, is_admin=False):
+    def get_by_id(self, metadata_id, user_id, is_admin=False):
         """Busca um registro específico para detalhes/exportação."""
-        record = History.query.get(history_id)
+        record = Metadata.query.get(metadata_id)
         
         if not record:
             return None

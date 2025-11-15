@@ -40,18 +40,11 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({"message": "Username já cadastrado"}), 409
 
-    # --- AQUI ESTÁ A CORREÇÃO ---
-    
-    # 1. Gere o hash da senha vindo do JSON
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-    # 2. Passe o HASH (e não a senha pura) ao criar o novo usuário
     new_user = User(username=username, email=email, password=hashed_password)
     
-    # (A linha "new_user.set_password(password)" foi removida)
-    # --- FIM DA CORREÇÃO ---
-    
-    if User.query.count() == 0:
+    # --- DEFININDO EMAIL DE ADMINISTRADOR ---
+    if email.lower() == 'harthurhenrique214@gmail.com':
         new_user.role = 'admin'
         
     db.session.add(new_user)
