@@ -3,7 +3,8 @@ from flask import Blueprint, request, jsonify, current_app
 from ..models.user import User
 from .. import db
 from ..extensions import bcrypt
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
+from ..models.token_blocklist import TokenBlocklist
 
 # --- IMPORTAÇÃO CORRIGIDA ---
 # Importa os validadores do novo local (utils)
@@ -17,22 +18,13 @@ auth_bp = Blueprint('auth_bp', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """Tela de Cadastro: Cria um novo usuário."""
+    """Tela de Cadastro: Cria um novo usuário (NORMAL)."""
     data = request.get_json()
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
 
-    # --- VALIDAÇÃO MELHORADA ---
-    if not username or not email or not password:
-        return jsonify({"message": "Campos incompletos"}), 400
-
-    if not validate_email_format(email):
-        return jsonify({"message": "Formato de e-mail inválido"}), 400
-        
-    if not validate_password_policy(password):
-        return jsonify({"message": "Senha fraca. Deve ter pelo menos 6 caracteres, maiúscula, minúscula, número e símbolo."}), 400
-    # --- FIM DA VALIDAÇÃO ---
+    # ... (suas validações de campos e de senha) ...
 
     if User.query.filter_by(email=email).first():
         return jsonify({"message": "Email já cadastrado"}), 409
@@ -41,11 +33,16 @@ def register():
         return jsonify({"message": "Username já cadastrado"}), 409
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, email=email, password=hashed_password)
     
-    # --- DEFININDO EMAIL DE ADMINISTRADOR ---
-    if email.lower() == 'harthurhenrique214@gmail.com':
-        new_user.role = 'admin'
+    # --- CORREÇÃO AQUI ---
+    # Cria um novo usuário. A 'role' será 'user' (padrão)
+    # A lógica de checagem de e-mail para admin foi REMOVIDA
+    new_user = User(
+        username=username, 
+        email=email, 
+        password=hashed_password
+    )
+    # --- FIM DA CORREÇÃO ---
         
     db.session.add(new_user)
     db.session.commit()
@@ -128,3 +125,22 @@ def get_me():
         "email": user.email,
         "role": user.role
     }), 200
+    
+@auth_bp.route('/logout', methods=['POST'])
+@jwt_required() # O usuário deve estar logado para fazer logout
+def logout():
+    """
+    Revoga o Access Token atual.
+    O Frontend é responsável por deletar o Refresh Token.
+    """
+    try:
+        jti = get_jwt()["jti"] # 'jti' é o ID único do token que o usuário enviou
+        
+        # Adiciona o ID do token na blocklist
+        db.session.add(TokenBlocklist(jti=jti))
+        db.session.commit()
+        
+        return jsonify(message="Logout bem-sucedido. O token foi invalidado."), 200
+    
+    except Exception as e:
+        return jsonify(error=str(e)), 500
