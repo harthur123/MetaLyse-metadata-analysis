@@ -1,57 +1,54 @@
-from flask import Blueprint, jsonify, request
-from ..services import history_service  
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..utils.decorators import admin_required 
+from ..models.user import User
+from ..services.history_service import HistoryService
 
-history_bp = Blueprint('history_bp', __name__)
+history_bp = Blueprint('history', __name__)
+service = HistoryService()
 
-@history_bp.route('/my-history', methods=['GET'])
+# --- ROTA DE USUÁRIO (Ver o próprio histórico) ---
+@history_bp.route('/me', methods=['GET'])
 @jwt_required()
-def get_my_history_route():
-    """Retorna o histórico do usuário que está logado."""
-    try:
-        user_id = get_jwt_identity()
-        data = history_service.get_history_by_user_id(user_id)
-        return jsonify({
-            "status": "success",
-            "historico": data
-        }), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@history_bp.route('/all-history', methods=['GET'])
-@admin_required()  # <-- Protegido! Só admin pode ver.
-def get_all_history_route():
-    """Retorna TODO o histórico de TODOS os usuários."""
-    try:
-        data = history_service.get_all_history()
-        return jsonify({
-            "status": "success",
-            "historico": data
-        }), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@history_bp.route('/save', methods=['POST'])
-@jwt_required()
-def save_history_route():
-    """Salva uma nova entrada de histórico para o usuário logado."""
-    try:
-        user_id = get_jwt_identity()
-        data = request.get_json()
-        
-        file_name = data.get("file_name")
-        file_type = data.get("file_type")
-
-        if not file_name or not file_type:
-            return jsonify({"status": "error", "message": "file_name e file_type são obrigatórios"}), 400
-
-        record = history_service.add_history(file_name, file_type, user_id)
-        
-        return jsonify({
-            "status": "success",
-            "registro": record
-        }), 201 
+def get_my_history():
+    user_id = get_jwt_identity()
+    search = request.args.get('search') # Pega ?search=termo da URL
     
+    try:
+        results = service.get_history(user_id=user_id, search_term=search, is_admin=False)
+        return jsonify(results), 200
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+# --- ROTA DE ADMIN (Ver tudo) ---
+@history_bp.route('/all', methods=['GET'])
+@jwt_required()
+def get_all_history():
+    user_id = get_jwt_identity()
+    
+    # Verifica se é Admin (A.1 do Admin)
+    user = User.query.get(user_id)
+    if not user or user.role != 'admin':
+        return jsonify({"message": "Acesso negado. Requer privilégios de administrador."}), 403
+
+    search = request.args.get('search')
+    
+    try:
+        results = service.get_history(user_id=None, search_term=search, is_admin=True)
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# --- ROTA DE DETALHES (Para expandir ou exportar) ---
+@history_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
+def get_history_details(id):
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    is_admin = (user and user.role == 'admin')
+
+    result = service.get_by_id(id, user_id, is_admin)
+    
+    if not result:
+        return jsonify({"message": "Registro não encontrado ou acesso não autorizado."}), 404
+        
+    return jsonify(result), 200

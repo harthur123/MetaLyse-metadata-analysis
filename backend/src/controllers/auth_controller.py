@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from ..models.user import User
 from .. import db
+from ..extensions import bcrypt
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 # --- IMPORTAÇÃO CORRIGIDA ---
@@ -39,10 +40,11 @@ def register():
     if User.query.filter_by(username=username).first():
         return jsonify({"message": "Username já cadastrado"}), 409
 
-    new_user = User(username=username, email=email)
-    new_user.set_password(password)
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(username=username, email=email, password=hashed_password)
     
-    if User.query.count() == 0:
+    # --- DEFININDO EMAIL DE ADMINISTRADOR ---
+    if email.lower() == 'harthurhenrique214@gmail.com':
         new_user.role = 'admin'
         
     db.session.add(new_user)
@@ -65,8 +67,8 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"message": "Email ou senha inválidos"}), 401
 
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     return jsonify(
         access_token=access_token,

@@ -1,46 +1,59 @@
+from ..extensions import db
+from ..models.metadata import Metadata # <-- Importa o modelo Metadata
+from ..models.user import User
+from sqlalchemy import or_
 
-
-from .. import db  
-from ..models.history import History  
-from ..models.User import User        
-
-def add_history(file_name, file_type, user_id, status="Concluído"):
+class HistoryService:
     
-    user = User.query.get(user_id)
-    if not user:
-        raise Exception(f"Usuário com id {user_id} não encontrado para salvar o histórico")
+    def get_history(self, user_id=None, search_term=None, is_admin=False):
+        """
+        Busca o histórico.
+        - Se user_id for passado: Retorna apenas daquele usuário (Visão Usuário).
+        - Se is_admin=True: Retorna de TODOS (Visão Admin).
+        - search_term: Filtra por nome do arquivo, tipo ou nome do autor (se admin).
+        """
+        
+        # Começa a query na tabela Metadata
+        query = Metadata.query
 
-    new_record = History(
-        file_name=file_name,
-        file_type=file_type,
-        status=status,
-        author=user  # Associa o objeto User completo!
-    )
+        # 1. Filtro de Permissão (Usuário vs Admin)
+        if not is_admin:
+            if user_id:
+                query = query.filter_by(user_id=user_id)
+            else:
+                return [] # Sem ID e sem admin = nada
 
-    db.session.add(new_record)
-    db.session.commit()
+        # 2. Filtro de Pesquisa (Search Bar)
+        if search_term:
+            search = f"%{search_term}%" # % serve para buscar partes do texto
+            
+            if is_admin:
+                # Admin pode buscar por Nome do Arquivo OU Nome do Autor
+                query = query.join(User).filter(
+                    or_(
+                        Metadata.filename.ilike(search),
+                        User.username.ilike(search),
+                        User.email.ilike(search)
+                    )
+                )
+            else:
+                # Usuário comum busca apenas nos seus arquivos
+                query = query.filter(Metadata.filename.ilike(search))
 
-    # 4. Retorna o novo registro como um dicionário
-    return new_record.to_dict()
+        # 3. Ordenação (Mais recente primeiro)
+        records = query.order_by(Metadata.upload_date.desc()).all()
+        
+        return [h.to_dict() for h in records] # <-- Usa o método to_dict()
 
-
-def get_all_history():
-   
-    records = History.query.order_by(History.created_at.desc()).all()
-    
-    # 2. Converte cada registro para um dicionário
-    return [h.to_dict() for h in records]
-
-
-def get_history_by_user_id(user_id):
-   
-    # 1. Verifica se o usuário existe
-    user = User.query.get(user_id)
-    if not user:
-        return [] 
-    
-    # 2. Faz a query filtrando pelo user_id
-    records = History.query.filter_by(user_id=user_id).order_by(History.created_at.desc()).all()
-    
-    # 3. Converte para dicionários
-    return [h.to_dict() for h in records]
+    def get_by_id(self, metadata_id, user_id, is_admin=False):
+        """Busca um registro específico para detalhes/exportação."""
+        record = Metadata.query.get(metadata_id)
+        
+        if not record:
+            return None
+            
+        # Segurança: Se não for admin, só pode ver o próprio registro
+        if not is_admin and record.user_id != user_id:
+            return None
+            
+        return record.to_dict()
