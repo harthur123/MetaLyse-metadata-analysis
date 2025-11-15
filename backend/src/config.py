@@ -24,6 +24,9 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = str(os.environ.get('MAIL_PASSWORD'))
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
+    
+    JWT_BLOCKLIST_ENABLED = True
+    JWT_BLOCKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     # ... outras configs ...
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  

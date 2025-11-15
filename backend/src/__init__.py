@@ -8,6 +8,7 @@ from .extensions import db, bcrypt, login_manager, mail, jwt
 from .models.user import User
 from .controllers.api import api_bp
 from .controllers.metadata_controller import metadata_bp
+from .models.token_blocklist import TokenBlocklist
 
 
 def create_app(config_name='default'):
@@ -29,6 +30,15 @@ def create_app(config_name='default'):
     login_manager.init_app(app)
     login_manager.login_view = 'api.login_api'
     login_manager.login_message_category = 'info'
+    
+    # --- ADICIONE ESTE BLOCO DE CÓDIGO ---
+    # Este "callback" é uma função que o JWT executa
+    # toda vez que recebe um token, para checar se ele está na blocklist.
+    @jwt.token_in_blocklist_loader
+    def check_if_token_is_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+        return token is not None
 
     # 3. Registro dos Blueprints (Rotas)
     app.register_blueprint(api_bp, url_prefix='/api')
