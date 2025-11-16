@@ -1,44 +1,51 @@
-<mat-toolbar class="app-toolbar">
-  <span class="toolbar-spacer"></span>
-  <span class="toolbar-spacer"></span>
-  
-  <button mat-icon-button [matMenuTriggerFor]="menu" class="user-profile-button">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-  
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item routerLink="/login">
-      <mat-icon>login</mat-icon> <span>Login</span>
-    </button>
-    <button mat-menu-item routerLink="/cadastro">
-      <mat-icon>person_add</mat-icon> <span>Cadastro</span>
-    </button>
-    <button mat-menu-item routerLink="/inicio">
-      <mat-icon>home</mat-icon> <span>Home</span>
-    </button>
-  </mat-menu>
-</mat-toolbar>
+@if (mostrarMenu()) {
 
+  <div>
 
-<nav mat-tab-nav-bar class="navigation-tabs" [tabPanel]="tabPanel">
-  <a mat-tab-link
-     routerLink="/inicio"
-     routerLinkActive="mat-tab-link-active"
-     [routerLinkActiveOptions]="{exact: true}">
-     Início
-  </a>
-  <a mat-tab-link
-     routerLink="/analisar"
-     routerLinkActive="mat-tab-link-active">
-     Analisar Arquivo
-  </a>
-  <a mat-tab-link
-     routerLink="/historico"
-     routerLinkActive="mat-tab-link-active">
-     Histórico/Relatórios
-  </a>
-</nav>
+    <mat-toolbar class="app-toolbar">
+      <span class="toolbar-spacer"></span>
+      <span class="toolbar-spacer"></span>
 
-<mat-tab-nav-panel #tabPanel>
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="user-profile-button">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="/login">
+          <mat-icon>login</mat-icon> <span>Login</span>
+        </button>
+        <button mat-menu-item routerLink="/cadastro">
+          <mat-icon>person_add</mat-icon> <span>Cadastro</span>
+        </button>
+        <button mat-menu-item routerLink="/inicio">
+          <mat-icon>home</mat-icon> <span>Home</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+   
+    <nav mat-tab-nav-bar class="navigation-tabs" [tabPanel]="tabPanel">
+      <a mat-tab-link routerLink="/inicio" routerLinkActive="mat-tab-link-active"
+         [routerLinkActiveOptions]="{exact: true}">
+        Início
+      </a>
+
+      <a mat-tab-link routerLink="/analisar" routerLinkActive="mat-tab-link-active">
+        Analisar Arquivo
+      </a>
+
+      <a mat-tab-link routerLink="/historico" routerLinkActive="mat-tab-link-active">
+        Histórico/Relatórios
+      </a>
+    </nav>
+
+    <mat-tab-nav-panel #tabPanel>
+      <router-outlet></router-outlet>
+    </mat-tab-nav-panel>
+
+  </div>
+
+} @else {
+
   <router-outlet></router-outlet>
-</mat-tab-nav-panel>
+}

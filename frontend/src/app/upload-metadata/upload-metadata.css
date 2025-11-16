@@ -1,17 +1,17 @@
-/* --- GERAL E LAYOUT --- */
+
 .analysis-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Alinha no topo */
+  justify-content: flex-start; 
   min-height: calc(100vh - 64px);
-  background-color: #ffffff; /* Fundo branco */
+  background-color: #ffffff; 
   padding: 40px 20px;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- TÍTULOS --- */
+
 h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -27,7 +27,7 @@ h2 {
   margin-bottom: 32px;
 }
 
-/* --- O "CARD" PRINCIPAL --- */
+
 .upload-container {
   width: 100%;
   max-width: 500px;
@@ -36,14 +36,14 @@ h2 {
   gap: 20px;
 }
 
-/* --- DROP ZONE --- */
+
 .drop-zone {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  border: 2px dashed #e2e8f0; /* Borda pontilhada cinza */
+  border: 2px dashed #e2e8f0; 
   border-radius: 12px;
   background-color: #fafcfe;
   min-height: 250px;
@@ -52,7 +52,7 @@ h2 {
 }
 
 .drop-zone.dragging {
-  border-color: #4a90e2; /* Borda azul ao arrastar */
+  border-color: #4a90e2; 
   background-color: #f7faff;
 }
 
@@ -87,9 +87,6 @@ h2 {
   color: #a0aec0;
 }
 
-/* --- BOTÕES --- */
-
-/* Botão "Selecionar Arquivo" (dentro da drop-zone) */
 .select-button {
   font-family: inherit;
   font-size: 0.95rem;
@@ -106,13 +103,13 @@ h2 {
   background-color: #f8fafc;
 }
 
-/* Botão "Analisar" (principal) */
+
 .submit-button {
   font-family: inherit;
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
-  background-color: #4a5568; /* Cinza escuro do botão "Analisar" */
+  background-color: #4a5568;
   border: none;
   width: 100%;
   padding: 14px 0;
@@ -130,7 +127,7 @@ h2 {
 }
 
 
-/* --- INFO E RESULTADOS --- */
+
 
 .upload-info {
   width: 100%;
@@ -147,7 +144,190 @@ h2 {
   text-align: center;
 }
 
-/* (Estes são os seus estilos antigos, levemente ajustados) */
+
+.preview-container {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.preview-container img,
+.preview-container iframe {
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.metadata-container {
+  margin-top: 24px;
+  text-align: left;
+  width: 100%;
+  max-width: 500px;
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.metadata-container h3 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: #2d3748;
+}
+.metadata-container pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.analysis-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; 
+  min-height: calc(100vh - 64px);
+  background-color: #ffffff;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #718096;
+  margin-top: 0;
+  margin-bottom: 32px;
+}
+
+.upload-container {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  border: 2px dashed #e2e8f0; 
+  border-radius: 12px;
+  background-color: #fafcfe;
+  min-height: 250px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.drop-zone.dragging {
+  border-color: #4a90e2; 
+  background-color: #f7faff;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+.icon-wrapper mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: #718096;
+}
+
+.drop-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin: 0;
+}
+
+.separator {
+  margin: 16px 0;
+  font-size: 0.9rem;
+  color: #a0aec0;
+}
+
+
+.select-button {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2d3748;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.select-button:hover {
+  background-color: #f8fafc;
+}
+
+.submit-button {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #4a5568; 
+  border: none;
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.submit-button:hover:not(:disabled) {
+  background-color: #2d3748;
+}
+.submit-button:disabled {
+  background-color: #e2e8f0;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+
+.upload-info {
+  width: 100%;
+  text-align: center;
+}
+.file-name {
+  font-style: italic;
+  color: #4a5568;
+  font-weight: 500;
+}
+.progress-text {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+
 .preview-container {
   margin-top: 24px;
   width: 100%;
