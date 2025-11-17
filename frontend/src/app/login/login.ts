@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms'; 
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -8,37 +8,85 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    FormsModule, MatCardModule, MatInputModule,
-    MatFormFieldModule, MatButtonModule,
-    RouterLink, HttpClientModule
+    FormsModule,
+    HttpClientModule,
+
+    // 🔥 NECESSÁRIO para o link de cadastro aparecer
+    RouterLink,
+
+    MatCardModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './login.html',
-  styleUrls: ['login.css']
+  styleUrls: ['./login.css']
 })
 export class Login {
-  email = '';
-  password = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
+  email = localStorage.getItem('saved_email') || '';
+  password = '';
+  hidePassword = true;
+  loading = false;
+  errorMsg = '';
+  remember = false;
+
+  validateEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
   onLogin() {
+    this.errorMsg = '';
+
     if (!this.email || !this.password) {
-      alert('Preencha todos os campos');
+      this.errorMsg = 'Preencha todos os campos.';
       return;
     }
 
-    this.http.post('http://127.0.0.1:5000/api/login', { email: this.email, password: this.password })
+    if (!this.validateEmail(this.email)) {
+      this.errorMsg = 'E-mail inválido.';
+      return;
+    }
+
+    const body = { email: this.email, password: this.password };
+    this.loading = true;
+
+    this.http.post('http://127.0.0.1:5000/api/login', body)
       .subscribe({
         next: (res: any) => {
+          this.loading = false;
+
           localStorage.setItem('access_token', res.access_token);
+
+          if (this.remember) {
+            localStorage.setItem('saved_email', this.email);
+          } else {
+            localStorage.removeItem('saved_email');
+          }
+
           this.router.navigate(['/inicio']);
         },
-        error: (err) => alert(err.error?.message || 'Email ou senha inválidos')
+        error: (err) => {
+          this.loading = false;
+
+          if (err.status === 401) this.errorMsg = 'Senha incorreta.';
+          else if (err.status === 404) this.errorMsg = 'Usuário não encontrado.';
+          else this.errorMsg = 'Erro ao conectar ao servidor.';
+        }
       });
   }
 }

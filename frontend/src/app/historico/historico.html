@@ -1,1 +1,79 @@
-<p>historico works!</p>
+<div class="body-container">
+
+  <mat-card class="history-card">
+    
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>assessment</mat-icon>
+        Histórico de Metadados
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      
+      <div class="filter-toolbar">
+        
+        <mat-form-field class="search-bar" appearance="outline">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Buscar por nome do arquivo...</mat-label>
+          <input matInput (keyup)="applyFilter($event)">
+        </mat-form-field>
+
+        <mat-form-field class="date-filter" appearance="outline">
+          <mat-label>Filtro por data</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Início">
+            <input matEndDate placeholder="Fim">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" class="export-button" [matMenuTriggerFor]="exportMenu">
+          <mat-icon>download</mat-icon>
+          Exportar
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item>PDF</button>
+          <button mat-menu-item>CSV/Excel</button>
+        </mat-menu>
+        
+      </div>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource">
+
+          <ng-container matColumnDef="nomeArquivo">
+            <th mat-header-cell *matHeaderCellDef> Nome do Arquivo </th>
+            <td mat-cell *matCellDef="let item"> {{item.nomeArquivo}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="formato">
+            <th mat-header-cell *matHeaderCellDef> Formato </th>
+            <td mat-cell *matCellDef="let item"> {{item.formato}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataAnalise">
+            <th mat-header-cell *matHeaderCellDef> Data da Análise </th>
+            <td mat-cell *matCellDef="let item"> {{item.dataAnalise}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="horaAnalise">
+            <th mat-header-cell *matHeaderCellDef> Hora da Análise </th>
+            <td mat-cell *matCellDef="let item"> {{item.horaAnalise}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                     showFirstLastButtons
+                     aria-label="Selecione a página de resultados">
+      </mat-paginator>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

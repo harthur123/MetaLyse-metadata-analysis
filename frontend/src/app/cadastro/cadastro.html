@@ -3,24 +3,56 @@
     <mat-card-header>
       <mat-card-title>Criar Conta</mat-card-title>
     </mat-card-header>
+
     <mat-card-content>
       <form class="auth-form" (ngSubmit)="onCadastro()">
+
         <mat-form-field appearance="outline">
           <mat-label>Nome de Usuário</mat-label>
           <input matInput [(ngModel)]="username" name="username" required>
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
           <input matInput type="email" [(ngModel)]="email" name="email" required>
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
-          <input matInput type="password" [(ngModel)]="password" name="password" required>
+          <input 
+            matInput 
+            type="password" 
+            [(ngModel)]="password" 
+            name="password"
+            (input)="validatePassword()"
+            required>
         </mat-form-field>
+
+        @if (passwordErrors.length > 0) {
+          <div style="color: red; font-size: 13px; margin-bottom: 10px;">
+            <ul>
+              @for (err of passwordErrors; track err) {
+                <li>{{ err }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div style="margin-bottom: 15px;">
+          <div style="width: 100%; height: 8px; background: #ddd; border-radius: 4px;">
+            <div 
+              [style.width]="strength + '%'"
+              [style.background]="strengthColor"
+              style="height: 8px; border-radius: 4px; transition: .3s">
+            </div>
+          </div>
+        </div>
+
         <div class="actions">
           <button mat-raised-button color="accent" type="submit">Cadastrar</button>
           <button mat-button type="button" [routerLink]="['/login']">Já tenho conta</button>
         </div>
+
       </form>
     </mat-card-content>
   </mat-card>

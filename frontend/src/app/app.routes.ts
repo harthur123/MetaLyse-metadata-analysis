@@ -1,27 +1,13 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-
-import { Login } from './login/login';
-import { Cadastro } from './cadastro/cadastro';
-import { DefinirSenha } from './definir-senha/definir-senha';
-import { UploadMetadata } from './upload-metadata/upload-metadata';
-import { Home } from './home/home';
+import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  { path: 'inicio', component: Home},
-  { path: 'login', component: Login },
-  { path: 'cadastro', component: Cadastro },
-  { path: 'definir-senha', component: DefinirSenha },
-  { path: 'analisar', component: UploadMetadata },
+  { path: 'inicio', loadComponent: () => import('./home/home').then(m => m.Home) },
+  { path: 'login', loadComponent: () => import('./login/login').then(m => m.Login) },
+  { path: 'cadastro', loadComponent: () => import('./cadastro/cadastro').then(m => m.Cadastro) },
+  { path: 'definir-senha', loadComponent: () => import('./definir-senha/definir-senha').then(m => m.DefinirSenha) },
+  { path: 'analisar', loadComponent: () => import('./upload-metadata/upload-metadata').then(m => m.UploadMetadata) },
 
   { path: '**', redirectTo: 'login' }
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule {}

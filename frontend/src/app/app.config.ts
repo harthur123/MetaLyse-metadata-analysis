@@ -1,21 +1,16 @@
-import { ApplicationConfig, importProvidersFrom, provideZonelessChangeDetection, provideBrowserGlobalErrorListeners } from '@angular/core';
+// app.config.ts
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-// Remova HttpClientModule daqui, não é necessário
-import { provideHttpClient, withFetch } from '@angular/common/http'; 
-import { routes } from './app.routes';
+
+// Use o caminho que você usou no main.ts
+import { routes } from './app.routes'; 
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
-    provideRouter(routes),
-    provideClientHydration(withEventReplay()),
-    
-    // REMOVA ESTA LINHA: importProvidersFrom(HttpClientModule), 
-    
-    provideHttpClient(withFetch()), // ✅ Este é o correto e suficiente
-    provideAnimations(),            // ✅ Correto para o Material
+    provideRouter(routes), 
+    provideHttpClient(withFetch()),
+    provideAnimations() // Importante para o Angular Material
   ]
 };

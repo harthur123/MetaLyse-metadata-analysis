@@ -1,5 +1,5 @@
-@if (mostrarMenu()) {
-
+@if (mostrarMenu()) 
+{
   <div>
 
     <mat-toolbar class="app-toolbar">
@@ -23,10 +23,9 @@
       </mat-menu>
     </mat-toolbar>
 
-   
     <nav mat-tab-nav-bar class="navigation-tabs" [tabPanel]="tabPanel">
       <a mat-tab-link routerLink="/inicio" routerLinkActive="mat-tab-link-active"
-         [routerLinkActiveOptions]="{exact: true}">
+         [routerLinkActiveOptions]="{ exact: true }">
         Início
       </a>
 
@@ -44,8 +43,8 @@
     </mat-tab-nav-panel>
 
   </div>
-
-} @else {
-
+}
+@else 
+{
   <router-outlet></router-outlet>
 }
