@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatIcon, MatIconModule } from "@angular/material/icon";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
+
 @Component({
   selector: 'app-upload-metadata',
   templateUrl: './upload-metadata.html',
   styleUrls: ['./upload-metadata.css'],
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     FormsModule,
-    HttpClientModule,
     MatIconModule,
     MatProgressBarModule]
 })
@@ -94,46 +95,65 @@ export class UploadMetadata {
   // =========================
   // Envio ao backend
   // =========================
+ // =========================
+  // Envio ao backend (COM TOKEN MANUAL)
+  // =========================
   uploadFile(): void {
     if (!this.selectedFile) return;
 
     this.uploading = true;
     this.uploadProgress = 0;
 
+    // 1. Pega o token manualmente do armazenamento
+    const token = localStorage.getItem('access_token');
+    console.log('🔑 Token lido no componente:', token); 
+
+    // 2. Cria o cabeçalho manualmente (PRECISA IMPORTAR HttpHeaders lá em cima!)
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
+    // 3. Envia a requisição PASSANDO O HEADER EXPLICITAMENTE
     this.http.post('http://127.0.0.1:5000/api/metadata/upload', formData, {
+      headers: headers, 
       reportProgress: true,
       observe: 'events'
     }).subscribe({
       next: (event: any) => {
         if (event.type === 1 && event.total) {
-          // progresso
           this.uploadProgress = Math.round((event.loaded / event.total) * 100);
         }
 
         if (event.body) {
-          // resposta final
-          this.metadata = event.body.metadata;
-          this.extractedMetadata = event.body.extracted;
+          console.log('✅ Sucesso:', event.body);
+          // Ajuste aqui para bater com o JSON do backend:
+          this.metadata = event.body.file; // Dados do arquivo (tamanho, nome)
+          this.extractedMetadata = event.body.metadados_extraidos; // Dados do Exif/PDF
           this.uploading = false;
         }
       },
       error: (err) => {
-        console.error(err);
+        console.error('❌ Erro no upload:', err);
         this.errorMessage = err.error?.msg || 'Erro ao processar arquivo.';
         this.uploading = false;
       }
     });
   }
 
-  // helpers
+  // =========================
+  // HELPERS (As funções que estavam faltando!)
+  // =========================
+  
   isImageFile(): boolean {
-    return this.fileType === 'jpeg';
+    // Verifica se é imagem (backend retorna jpeg ou jpg)
+    return this.fileType === 'jpeg' || (this.selectedFile?.type === 'image/jpeg');
   }
 
   isPdfFile(): boolean {
-    return this.fileType === 'pdf';
+    return this.fileType === 'pdf' || (this.selectedFile?.type === 'application/pdf');
   }
 }

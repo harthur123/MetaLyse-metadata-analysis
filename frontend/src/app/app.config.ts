@@ -1,16 +1,20 @@
-// app.config.ts
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
-// Use o caminho que você usou no main.ts
-import { routes } from './app.routes'; 
+import { routes } from './app.routes';
+import { authInterceptor } from './auth.interceptor'; // <--- CORRETO
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes), 
-    provideHttpClient(withFetch()),
-    provideAnimations() // Importante para o Angular Material
+    provideRouter(routes),
+    
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor])
+    ),
+    
+    provideAnimations()
   ]
 };

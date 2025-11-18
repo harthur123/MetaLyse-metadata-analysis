@@ -61,8 +61,15 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    if not user or not user.check_password(password):
-        return jsonify({"message": "Email ou senha inválidos"}), 401
+    # 2. Verifica se o email existe
+    if not user:
+        # AQUI VOCÊ MUDA A MENSAGEM PARA O FRONT
+        return jsonify({"message": "Este e-mail não está cadastrado."}), 404 # ou 401
+
+    # 3. Se o email existe, verifica a senha
+    if not user.check_password(password):
+        # AQUI VOCÊ MANDA OUTRA MENSAGEM
+        return jsonify({"message": "A senha está incorreta."}), 401
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))

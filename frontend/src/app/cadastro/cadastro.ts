@@ -77,7 +77,7 @@ export class Cadastro {
       password: this.password
     };
 
-    this.http.post('http://127.0.0.1:5000/api/register', usuario)
+    this.http.post('http://127.0.0.1:5000/api/auth/register', usuario)
       .subscribe({
         next: () => {
           alert('Cadastro realizado com sucesso!');

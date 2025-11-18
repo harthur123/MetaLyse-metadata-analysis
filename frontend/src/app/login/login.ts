@@ -65,7 +65,7 @@ export class Login {
     const body = { email: this.email, password: this.password };
     this.loading = true;
 
-    this.http.post('http://127.0.0.1:5000/api/login', body)
+    this.http.post('http://127.0.0.1:5000/api/auth/login', body)
       .subscribe({
         next: (res: any) => {
           this.loading = false;
