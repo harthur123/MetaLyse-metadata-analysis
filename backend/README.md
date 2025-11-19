@@ -1,251 +1,143 @@
-🚀 Guia da API MetaLyse para Frontend (Angular)
+🚀 Instalação e Configuração (Passo a Passo)
 
-Este documento é o guia oficial para a integração entre o backend Flask e o frontend Angular do projeto MetaLyse.
+Siga estes passos na ordem exata para rodar o projeto.
 
-1. Informações Gerais
+1. Clone e Entre na Pasta
 
-    URL Base da API: http://127.0.0.1:5000/api/
+Abra o terminal e navegue até a pasta do backend:
+Bash
 
-    Formato dos Dados: Todas as requisições e respostas são em JSON, exceto o upload de arquivos.
+cd backend
 
-    CORS: O backend já está configurado para aceitar requisições vindas de http://localhost:4200 (porta padrão do Angular).
+2. Crie e Ative o Ambiente Virtual (venv)
 
-2. 🔑 Fluxo de Autenticação (Obrigatório)
+Isso isola as dependências do projeto.
 
-Quase todas as rotas são protegidas por JWT (JSON Web Token). O frontend precisa seguir este fluxo para acessar a API:
+    No Windows (PowerShell):
+    PowerShell
 
-    Login: O usuário envia o e-mail e senha para a rota POST /api/auth/login.
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 
-    Armazenar Token: O backend responde com um access_token. O frontend deve salvar este token no localStorage do navegador.
+No Linux/Mac:
+Bash
 
-    Enviar Token: Para todas as requisições futuras a rotas protegidas (Upload, Histórico, etc.), o Angular deve usar um HttpInterceptor para anexar este token ao cabeçalho (Header) da requisição.
+    python3 -m venv venv
+    source venv/bin/activate
 
-        Cabeçalho: Authorization
+3. Instale as Dependências
 
-        Valor: Bearer <token_salvo_no_localstorage>
+Bash
 
-3. Endpoints da API
+pip install -r requirements.txt
 
-Aqui estão todas as rotas (telas) que o frontend pode chamar.
+⚙️ Configuração de Ambiente (.env)
 
-👤 Autenticação (/api/auth)
+Você precisa criar um arquivo chamado .env na raiz da pasta backend. Copie e cole o conteúdo abaixo dentro dele:
+Ini, TOML
 
-Rotas para gerenciar o login, registro e contas de usuário.
+# Configurações de Segurança
+SECRET_KEY='uma-chave-super-secreta-e-aleatoria'
+SQLALCHEMY_DATABASE_URI='sqlite:///../instance/app.db'
 
-POST /api/auth/register
+# Configurações de E-mail (Necessário para Reset de Senha)
+MAIL_SERVER='smtp.gmail.com'
+MAIL_PORT='587'
+MAIL_USE_TLS='True'
+MAIL_USERNAME='metalyser44@gmail.com'
+# (Se for testar o envio real, use uma Senha de App do Google aqui)
+MAIL_PASSWORD='tfdg vwwu dglm lkaa'
 
-    O que faz: Cria uma nova conta de usuário (normal).
+# --- 👑 CREDENCIAIS DO ADMINISTRADOR (SEED) ---
+# Estas credenciais serão usadas para criar o Admin via comando
+ADMIN_EMAIL='admin@metalyse.com'
+ADMIN_PASSWORD='Admin123!@'
 
-    Proteção: Pública.
+💾 Banco de Dados e Administrador
 
-    Body (JSON):
-    JSON
+O sistema usa SQLite. Siga estes comandos para criar o banco e o usuário Mestre.
 
-    {
-      "username": "nome_do_usuario",
-      "email": "usuario@email.com",
-      "password": "SenhaForte123!"
-    }
+1. Inicializar o Banco
 
-    Resposta Sucesso (201): {"message": "Usuário criado com sucesso!"}
+Se existir uma pasta instance, você pode deletar o arquivo app.db dentro dela para começar limpo. O sistema criará um novo automaticamente ao iniciar.
 
-    Respostas Erro:
+2. Criar o Usuário Administrador (Seed)
 
-        400 Bad Request: Campos faltando ou senha fraca.
+Nós criamos um comando personalizado para "plantar" o admin configurado no .env acima.
 
-        409 Conflict: E-mail ou username já cadastrado.
+No terminal (com o venv ativo), execute:
+PowerShell
 
-POST /api/auth/login
+# 1. Define o app (Apenas Windows PowerShell)
+$env:FLASK_APP = "run.py"
 
-    O que faz: Autentica um usuário e retorna os tokens de acesso.
+# 2. Roda o comando de criação
+flask seed-admin
 
-    Proteção: Pública.
+✅ Resultado Esperado: Administrador 'admin@metalyse.com' criado com sucesso.
 
-    Body (JSON):
-    JSON
+▶️ Executando o Servidor
 
-{
-  "email": "usuario@email.com",
-  "password": "SenhaForte123!"
-}
+Agora que tudo está configurado:
+PowerShell
 
-Resposta Sucesso (200):
-JSON
+python run.py
 
-    {
-      "access_token": "eyJhbGciOiJIUz...",
-      "refresh_token": "eyJ0eXAiOiJKV...",
-      "user_role": "admin" // (ou "user")
-    }
+O servidor iniciará em: http://127.0.0.1:5000/
 
-    Resposta Erro (401 Unauthorized): {"message": "Email ou senha inválidos"}
+🧪 Guia de Testes (Endpoints)
 
-GET /api/auth/me
+Você pode testar usando o Postman ou Insomnia.
 
-    O que faz: Busca os dados do usuário atualmente logado (útil para o "Olá, Harthur" no menu).
+1. 🔐 Autenticação
 
-    Proteção: JWT Obrigatório.
+Ação	Método	URL	Body (JSON)
+Login (Admin)	POST	/api/auth/login	{ "email": "admin@metalyse.com", "password": "Admin123!@" }
+Registro (Comum)	POST	/api/auth/register	{ "username": "teste", "email": "teste@email.com", "password": "Senha123!" }
+Logout	POST	/api/auth/logout	Authorization: Bearer <TOKEN>
 
-    Headers: Authorization: Bearer <token>
+    NOTA: Ao fazer Login, copie o access_token retornado. Você precisará dele para as rotas abaixo.
 
-    Resposta Sucesso (200):
-    JSON
+2. 📂 Upload e Análise (Requer Token)
 
-    {
-      "id": 1,
-      "username": "harthur",
-      "email": "harthurhenrique214@gmail.com",
-      "role": "admin"
-    }
+Para testar a extração de metadados.
 
-POST /api/auth/logout
+    Método: POST
 
-    O que faz: Invalida o token de acesso atual (adiciona à blocklist).
+    URL: /api/metadata/upload
 
-    Proteção: JWT Obrigatório.
+    Header: Authorization: Bearer <SEU_TOKEN_AQUI>
 
-    Headers: Authorization: Bearer <token>
+    Body: Selecione form-data:
 
-    Body: Vazio.
+        Key: file (Tipo: File) -> Anexe um PDF ou JPG.
 
-    Resposta Sucesso (200): {"message": "Logout bem-sucedido. O token foi invalidado."}
+✅ Retorno: Um JSON contendo os metadados técnicos extraídos (GPS, Câmera, Autor, etc.).
 
-POST /api/auth/reset-password-request
+3. 📜 Histórico (Requer Token)
 
-    O que faz: Inicia o fluxo de "esqueci a senha". O backend enviará o e-mail.
+    Ver Meu Histórico:
 
-    Proteção: Pública.
+        GET /api/history/me
 
-    Body (JSON):
-    JSON
+        Retorna apenas os arquivos que você enviou.
 
-    {
-      "email": "usuario_que_esqueceu@email.com"
-    }
+    Ver TODO Histórico (Só Admin):
 
-    Resposta Sucesso (200): {"message": "Se o email estiver cadastrado, um link será enviado."}
+        GET /api/history/all
 
-POST /api/auth/reset-password
+        Retorna os arquivos de todos os usuários do sistema.
 
-    O que faz: Define a nova senha. O frontend deve pegar o token da URL (que o usuário clicou no e-mail) e enviá-lo no corpo.
+🛠️ Solução de Problemas Comuns
 
-    Proteção: Pública.
+    Erro 422 Unprocessable Entity:
 
-    Body (JSON):
-    JSON
+        Provavelmente seu Token expirou ou você esqueceu de enviar o Header Authorization. Faça login novamente.
 
-    {
-      "token": "TOKEN_QUE_VEIO_NA_URL_DO_EMAIL",
-      "new_password": "NovaSenhaForte456!"
-    }
+    Erro FileNotFoundError: exiftool.exe:
 
-    Resposta Sucesso (200): {"message": "Senha atualizada com sucesso!"}
+        Verifique se o arquivo exiftool.exe está solto dentro da pasta backend/.
 
-📤 Upload de Metadados (/api/metadata)
+    Erro 401 Unauthorized no Login:
 
-Rota principal para a análise de arquivos.
-
-POST /api/metadata/upload
-
-    O que faz: Envia um arquivo (PDF ou JPG) para análise. O arquivo físico é deletado após a análise.
-
-    Proteção: JWT Obrigatório.
-
-    Headers: Authorization: Bearer <token>
-
-    Body: Atenção! Não é JSON. Deve ser form-data. O frontend (Angular) deve usar FormData.
-
-        Key: file
-
-        Value: (O arquivo .pdf ou .jpg que o usuário selecionou)
-
-    Resposta Sucesso (201):
-    JSON
-
-    {
-      "message": "Upload e extração concluídos com sucesso!",
-      "file": {
-        "nome": "Curriculo.pdf",
-        "tipo": "application/pdf",
-        "tamanho_bytes": 216739,
-        "hash": "a4996a90999..."
-      },
-      "metadados_extraidos": {
-        "Author": "Harthur",
-        "Creator": "Microsoft Word 2016",
-        "page_count": "1"
-        // ... ou os dados do exiftool para JPEGs
-      }
-    }
-
-📋 Consulta de Histórico (/api/history)
-
-Rotas para o "Caso de Uso: Histórico" (Visão de Usuário e Admin).
-
-GET /api/history/me
-
-    O que faz: Retorna o histórico de uploads apenas do usuário logado.
-
-    Proteção: JWT Obrigatório.
-
-    Headers: Authorization: Bearer <token>
-
-    Filtro (Opcional): Para implementar a barra de busca (A.4), adicione um parâmetro na URL.
-
-        Exemplo: /api/history/me?search=Curriculo
-
-    Resposta Sucesso (200): Uma lista de registros.
-    JSON
-
-    [
-      {
-        "id": 1,
-        "nome_arquivo": "Curriculo.pdf",
-        "tipo_arquivo": "application/pdf",
-        "tamanho_bytes": 216739,
-        "data_analise": "2025-11-14T19:40:00",
-        "hash": "a4996a90999...",
-        "usuario_responsavel": "harthur",
-        "metadados_extraidos": { ... }
-      }
-    ]
-
-GET /api/history/all
-
-    O que faz: (SÓ PARA ADMINS) Retorna o histórico de todos os usuários.
-
-    Proteção: JWT Obrigatório (e o usuário deve ter role: "admin")
-
-    Headers: Authorization: Bearer <token>
-
-    Filtro (Opcional): O admin pode buscar por nome de arquivo ou nome de usuário (A.2).
-
-        Exemplo: /api/history/all?search=outro_usuario
-
-    Resposta Sucesso (200): Uma lista de registros (mesmo formato do /me).
-
-    Resposta Erro (403 Forbidden): {"message": "Acesso negado. Requer privilégios de administrador."}
-
-GET /api/history/<id>
-
-    O que faz: Pega os detalhes de um registro específico (para "expandir" o registro).
-
-    Proteção: JWT Obrigatório.
-
-    Headers: Authorization: Bearer <token>
-
-    Resposta Sucesso (200): Um único objeto de registro (mesmo formato do /me).
-
-    Resposta Erro (404 Not Found): {"message": "Registro não encontrado ou acesso não autorizado."}
-
-⚠️ Resumo de Erros Comuns
-
-    400 Bad Request: JSON mal formatado ou campos faltando (ex: password faltando no login).
-
-    401 Unauthorized: O usuário tentou acessar uma rota protegida sem enviar um Authorization header.
-
-    403 Forbidden: O usuário está logado, mas não é um admin (ex: tentou acessar /api/history/all).
-
-    404 Not Found: A URL está errada (ex: /api/register em vez de /api/auth/register).
-
-    422 Unprocessable Entity: O Authorization header foi enviado, mas o token está expirado, inválido ou foi revogado (logout).
+        Você rodou o comando flask seed-admin? Verifique se o e-mail e senha no .env batem com o que você está digitando.
