@@ -1,30 +1,73 @@
 <div class="auth-container">
   <mat-card class="auth-card">
     <mat-card-header>
-      <mat-card-title>Login MetalYse</mat-card-title>
+      <mat-card-title>Entrar</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
-      <form class="auth-form" (ngSubmit)="onLogin()">
+      <form class="auth-form" (ngSubmit)="onLogin()" #f="ngForm">
+
+        <!-- E-mail -->
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
-          <input matInput type="email" [(ngModel)]="email" name="email" required>
+          <input 
+            matInput 
+            type="email" 
+            [(ngModel)]="email" 
+            name="email" 
+            required>
         </mat-form-field>
 
+        <!-- Senha -->
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
-          <input matInput type="password" [(ngModel)]="password" name="password" required>
+          <input 
+            matInput 
+            [type]="hidePassword ? 'password' : 'text'"
+            [(ngModel)]="password"
+            name="password"
+            autocomplete="new-password"
+            required>
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button" 
+            (click)="hidePassword = !hidePassword"
+            tabindex="-1">
+            <mat-icon>
+              {{ hidePassword ? 'visibility' : 'visibility_off' }}
+            </mat-icon>
+          </button>
         </mat-form-field>
 
-        
-        <div class="forgot-password">
-          <a [routerLink]="['/definir-senha']">Esqueceu sua senha?</a>
+        <!-- Erros -->
+        <div *gIf="errorMsg" class="error-message">
+          {{ errorMsg }}
         </div>
 
+        <!-- Lembrar -->
+        <mat-checkbox [(ngModel)]="remember" name="remember">
+          Lembrar de mim
+        </mat-checkbox>
+
+        <!-- Botão Entrar -->
         <div class="actions">
-          <button mat-raised-button color="primary" type="submit">Entrar</button>
-          <button mat-button type="button" [routerLink]="['/cadastro']">Criar Conta</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+            <span *ngIf="!loading">Entrar</span>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          </button>
         </div>
+
+        <!-- Esqueceu a senha -->
+        <div class="forgot-password">
+          <a [routerLink]="['/reset-password-request']">Esqueceu sua senha?</a>
+        </div>
+
+        <!-- Criar Conta -->
+        <div class="register-link">
+          <a routerLink="/cadastro">Criar conta</a>
+        </div>
+
       </form>
     </mat-card-content>
   </mat-card>

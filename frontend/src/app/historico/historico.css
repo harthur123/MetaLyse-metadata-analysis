@@ -1,0 +1,73 @@
+/* Container para centralizar o card e dar fundo */
+.body-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  background-color: #f4f7fa; /* Fundo cinza claro */
+  min-height: 100vh;
+}
+
+/* Card Principal */
+.history-card {
+  width: 100%;
+  max-width: 1200px; /* Largura máxima do card */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Título do Card */
+.mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espaço entre o ícone e o texto */
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* Barra de Ferramentas de Filtro */
+.filter-toolbar {
+  display: flex;
+  flex-wrap: wrap; /* Permite que os itens quebrem linha em telas menores */
+  gap: 16px; /* Espaçamento entre os filtros */
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+/* Campo de Busca */
+.search-bar {
+  flex: 1 1 300px; /* Permite crescer, mas com base de 300px */
+}
+
+/* Filtro de Data */
+.date-filter {
+  flex: 1 1 250px;
+}
+
+/* Botão de Exportar */
+.export-button {
+  height: 55px; /* Alinha a altura com os campos de formulário 'outline' */
+}
+
+/* Tabela */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Adiciona scroll horizontal se a tabela for muito larga */
+}
+
+.mat-table {
+  width: 100%;
+}
+
+/* Cabeçalho da Tabela */
+.mat-header-cell {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.875rem;
+}
+
+/* Paginação */
+.mat-paginator {
+  margin-top: 1rem;
+}

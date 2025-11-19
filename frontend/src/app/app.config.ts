@@ -1,21 +1,20 @@
-import { ApplicationConfig, importProvidersFrom, provideZonelessChangeDetection, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-// Remova HttpClientModule daqui, não é necessário
-import { provideHttpClient, withFetch } from '@angular/common/http'; 
+
 import { routes } from './app.routes';
+import { authInterceptor } from './auth.interceptor'; // <--- CORRETO
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
     
-    // REMOVA ESTA LINHA: importProvidersFrom(HttpClientModule), 
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor])
+    ),
     
-    provideHttpClient(withFetch()), // ✅ Este é o correto e suficiente
-    provideAnimations(),            // ✅ Correto para o Material
+    provideAnimations()
   ]
 };

@@ -16,6 +16,6 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './home.html', // Nome do arquivo sem .component
   styleUrl: './home.css'      // Nome do arquivo sem .component
 })
-export class HomeComponent {
+export class Home {
   // ...
 }
