@@ -19,15 +19,7 @@
           <input matInput (keyup)="applyFilter($event)">
         </mat-form-field>
 
-        <mat-form-field class="date-filter" appearance="outline">
-          <mat-label>Filtro por data</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate placeholder="Início">
-            <input matEndDate placeholder="Fim">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
+    
 
       </div>
 

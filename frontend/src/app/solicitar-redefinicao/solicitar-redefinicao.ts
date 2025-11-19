@@ -7,52 +7,58 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-solicitar-redefinicao',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    HttpClientModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatProgressSpinnerModule
-  ],
-  templateUrl: './solicitar-redefinicao.html',
-  styleUrls: ['./solicitar-redefinicao.css']
+  selector: 'app-solicitar-redefinicao',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule
+  ],
+  templateUrl: './solicitar-redefinicao.html',
+  styleUrls: ['./solicitar-redefinicao.css']
 })
 export class SolicitarRedefinicao {
-  private http = inject(HttpClient);
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  email = '';
-  loading = false;
-  successMsg = '';
-  errorMsg = '';
+  email = '';
+  loading = false;
+  successMsg = '';
+  errorMsg = '';
 
-  solicitarRedefinicao() {
-    this.errorMsg = '';
-    this.successMsg = '';
+  solicitarRedefinicao() {
+    this.errorMsg = '';
+    this.successMsg = '';
 
-    if (!this.email) {
-      this.errorMsg = 'Informe seu e-mail.';
-      return;
-    }
+    if (!this.email) {
+      this.errorMsg = 'Informe seu e-mail.';
+      return;
+    }
 
-    this.loading = true;
+    this.loading = true;
 
-    this.http.post('http://127.0.0.1:5000/api/auth/reset-password-request', { email: this.email })
-      .subscribe({
-        next: () => {
-          this.loading = false;
-          this.successMsg = 'Se o e-mail estiver cadastrado, um link será enviado.';
-        },
-        error: (err) => {
-          this.loading = false;
-          this.errorMsg = err.error?.message || 'Erro ao enviar o link.';
-        }
-      });
-  }
+    this.http.post('http://127.0.0.1:5000/api/auth/reset-password-request', { email: this.email })
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          
+          // ⚠️ Linha Otimizada: A mensagem de sucesso (successMsg) foi removida
+          // aqui, pois o redirecionamento é imediato e a tela de destino não a usará.
+          
+          
+        },
+        error: (err) => {
+          this.loading = false;
+          this.errorMsg = err.error?.message || 'Erro ao enviar o link.';
+        }
+      });
+  }
 }

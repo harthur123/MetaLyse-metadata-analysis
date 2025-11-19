@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
@@ -14,6 +14,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from "@angular/material/menu";
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+
 
 export interface HistoricoItem {
   nome_arquivo: string;
@@ -38,7 +39,8 @@ export interface HistoricoItem {
     MatPaginatorModule,
     MatMenuModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    DatePipe
   ],
   templateUrl: './historico.html',
   styleUrls: ['./historico.css']
