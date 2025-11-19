@@ -1,59 +1,120 @@
-# MetalyseApp
+🔍 MetaLyse - Sistema de Análise de Metadados
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+    ⚠️ DOCUMENTAÇÃO TÉCNICA DETALHADA Este projeto é modular. Para detalhes específicos de instalação, dependências e solução de erros, consulte os arquivos README.md dentro de cada pasta:
+* 🛡️ **Backend (API & Banco de Dados):** [Clique aqui para ler backend/README.md](backend/README.md)
+* 🎨 **Frontend (Interface Angular):** [Clique aqui para ler frontend/README.md](frontend/README.md)
+        
+📖 Sobre o Projeto
 
-## Development server
+MetaLyse é uma solução Full-Stack completa para extração, análise e histórico de metadados de arquivos digitais. O sistema permite que usuários façam upload de documentos (PDF) e imagens (JPG), extraindo informações técnicas profundas (como dados de GPS, Câmera, Autor, Software de Edição) que muitas vezes ficam ocultas.
 
-To start a local development server, run:
+O projeto foi construído com foco em Segurança, Arquitetura Limpa e Experiência do Usuário.
 
-```bash
-ng serve
-```
+🛠️ Tecnologias Utilizadas
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+O projeto é dividido em duas grandes partes integradas via API REST:
 
-## Code scaffolding
+🛡️ Backend (API)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+    Linguagem: Python 3
 
-```bash
-ng generate component component-name
-```
+    Framework: Flask
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+    Banco de Dados: SQLite (com SQLAlchemy ORM)
 
-```bash
-ng generate --help
-```
+    Segurança: JWT (JSON Web Tokens) com Blocklist para Logout e Bcrypt para senhas.
 
-## Building
+    Motor de Análise: ExifTool & PyPDF2
 
-To build the project run:
+🎨 Frontend (Interface)
 
-```bash
-ng build
-```
+    Framework: Angular (v16+)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+    Estilização: Angular Material & CSS3
 
-## Running unit tests
+    Comunicação: HTTP Client com Interceptadores de Token
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+    Recursos: Drag-and-Drop, Visualização de PDF/Imagem, Tabelas Dinâmicas.
 
-```bash
-ng test
-```
+📂 Estrutura do Projeto
 
-## Running end-to-end tests
+Bash
 
-For end-to-end (e2e) testing, run:
+MetaLyse-metadata-analysis/
+│
+├── backend/           # Código fonte da API Python
+│   ├── src/           # Controllers, Models e Services
+│   ├── instance/      # Banco de dados (app.db)
+│   ├── uploads/       # Área temporária de arquivos
+│   ├── exiftool.exe   # Ferramenta essencial de análise
+│   └── README.md      # 📘 Guia detalhado do Backend
+│
+├── frontend/          # Código fonte da Interface Angular
+│   ├── src/           # Componentes, Serviços e Páginas
+│   └── README.md      # 📙 Guia detalhado do Frontend
+│
+└── README.md          # (Este arquivo)
 
-```bash
-ng e2e
-```
+🚀 Como Rodar o Projeto (Guia Rápido)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Para o sistema funcionar, você precisa rodar o Backend e o Frontend simultaneamente em terminais diferentes.
 
-## Additional Resources
+Passo 1: Iniciar o Backend (Porta 5000)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Consulte o arquivo backend/README.md para detalhes de instalação de dependências e criação do Admin.
+PowerShell
+
+cd backend
+# Ative o ambiente virtual (venv)
+.\venv\Scripts\Activate.ps1 
+# Inicie o servidor
+python run.py
+
+    O servidor ficará online em: http://127.0.0.1:5000
+
+Passo 2: Iniciar o Frontend (Porta 4200)
+
+Consulte o arquivo frontend/README.md para detalhes de instalação do Node modules.
+
+Abra um novo terminal e execute:
+PowerShell
+
+cd frontend
+# Inicie a aplicação Angular
+npm start
+
+    Acesse a aplicação em: http://localhost:4200
+
+✨ Funcionalidades Principais
+
+1. Autenticação e Segurança
+
+    Cadastro Seguro: Validação de senhas fortes (Maiúsculas, símbolos, números).
+
+    Login JWT: Tokens de acesso com expiração e Refresh Tokens.
+
+    Recuperação de Senha: Fluxo completo com envio de e-mail e token seguro.
+
+    Logout Real: Invalidação de tokens via Blocklist no servidor.
+
+2. Análise de Arquivos
+
+    Suporte a PDF: Extrai contagem de páginas, autor original, software criador e datas internas.
+
+    Suporte a Imagens (JPG): Utiliza o poderoso ExifTool para extrair dados EXIF (Modelo da Câmera, ISO, Abertura, GPS Latitude/Longitude).
+
+    Privacidade: O arquivo físico é analisado e deletado imediatamente do servidor, mantendo apenas os dados no histórico.
+
+3. Histórico e Auditoria
+
+    Painel do Usuário: Cada usuário vê seu próprio histórico de uploads.
+
+    Painel do Administrador: Usuários com permissão elevada podem ver, filtrar e auditar o histórico de todos os usuários do sistema.
+
+👥 Autores
+
+Desenvolvido como projeto acadêmico para a disciplina de Desenvolvimento Full Stack.
+
+    Harthur Henrique (Backend & Integração)
+
+    [Nome do seu Colega] (Frontend & UI)
