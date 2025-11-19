@@ -18,10 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [
     FormsModule,
     HttpClientModule,
-
-    // 🔥 NECESSÁRIO para o link de cadastro aparecer
     RouterLink,
-
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
@@ -82,7 +79,6 @@ export class Login {
         },
         error: (err) => {
           this.loading = false;
-
           if (err.status === 401) this.errorMsg = 'Senha incorreta.';
           else if (err.status === 404) this.errorMsg = 'Usuário não encontrado.';
           else this.errorMsg = 'Erro ao conectar ao servidor.';

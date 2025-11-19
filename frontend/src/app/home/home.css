@@ -49,12 +49,14 @@
 }
 
 .security-info .check-icon {
-    color: #28a745; /* Cor verde para o ícone de check */
+    color: #883d00; /* Cor verde para o ícone de check */
     font-size: 24px;
-    margin-right: 10px; /* Espaço entre o ícone e o texto */
+    margin-right: 20px; /* Espaço entre o ícone e o texto */
 }
 
 .security-info .bold-text {
     font-weight: bold;
     color: #212529;
+    margin-right: 10px;
 }
+

@@ -11,15 +11,14 @@
       </button>
 
       <mat-menu #menu="matMenu">
-        <button mat-menu-item routerLink="/login">
-          <mat-icon>login</mat-icon> <span>Login</span>
-        </button>
-        <button mat-menu-item routerLink="/cadastro">
-          <mat-icon>person_add</mat-icon> <span>Cadastro</span>
-        </button>
+        
         <button mat-menu-item routerLink="/inicio">
           <mat-icon>home</mat-icon> <span>Home</span>
         </button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon> <span>Logout</span>
+        </button>
+
       </mat-menu>
     </mat-toolbar>
 

@@ -1,41 +1,74 @@
-import { Component } from '@angular/core';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { MatIcon, MatIconModule } from "@angular/material/icon";
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpEventType } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
+export interface MetadataResponse {
+  file: any;
+  metadados_extraidos: any;
+}
+
+export interface HistoryItem {
+  nomeArquivo: string;
+  formato: string;
+  dataAnalise: string;
+  horaAnalise: string;
+}
 
 @Component({
   selector: 'app-upload-metadata',
-  templateUrl: './upload-metadata.html',
-  styleUrls: ['./upload-metadata.css'],
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
+    MatCardModule,
     MatIconModule,
-    MatProgressBarModule]
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatMenuModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+  ],
+  templateUrl: './upload-metadata.html',
+  styleUrls: ['./upload-metadata.css']
 })
-export class UploadMetadata {
+export class UploadMetadata implements OnInit {
+  private http = inject(HttpClient);
 
   selectedFile: File | null = null;
-  previewUrl: string | null = null;
-  safePdfUrl: SafeResourceUrl | null = null;
-
   metadata: any = null;
   extractedMetadata: any = null;
-
-  fileType: 'pdf' | 'jpeg' | null = null;
-
   uploading: boolean = false;
   uploadProgress: number = 0;
-
-  isDragging: boolean = false;
-
   errorMessage: string = '';
+  fileType: 'pdf' | 'jpeg' | null = null;
 
-  constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
+  displayedColumns: string[] = ['nome_arquivo', 'formato', 'data_analise', 'hora_analise'];
+  dataSource = new MatTableDataSource<HistoryItem>([]);
+
+  isDragging = false;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  ngOnInit() {
+    this.dataSource.paginator = this.paginator;
+    this.loadHistory();
+  }
 
   // =========================
   // Seleção de arquivo
@@ -43,117 +76,132 @@ export class UploadMetadata {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (!file) return;
-
     this.handleFile(file);
-  }
-
-  // Drag & Drop
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragging = true;
-  }
-
-  onDragLeave(event: DragEvent): void {
-    this.isDragging = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragging = false;
-
-    const file = event.dataTransfer?.files[0];
-    if (file) this.handleFile(file);
   }
 
   private handleFile(file: File): void {
     this.selectedFile = file;
     this.fileType = null;
-    this.previewUrl = null;
-    this.safePdfUrl = null;
     this.metadata = null;
     this.extractedMetadata = null;
     this.errorMessage = '';
 
-    // detecta tipo do arquivo
     if (file.type === 'application/pdf') this.fileType = 'pdf';
     else if (file.type === 'image/jpeg') this.fileType = 'jpeg';
     else {
       this.errorMessage = 'Apenas PDF ou JPEG são suportados!';
-      return;
+      this.selectedFile = null;
     }
+  }
 
-    // gera preview
-    const url = URL.createObjectURL(file);
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
 
-    if (this.fileType === 'pdf') {
-      this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    } else if (this.fileType === 'jpeg') {
-      this.previewUrl = url;
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFile(event.dataTransfer.files[0]);
+      event.dataTransfer.clearData();
     }
   }
 
   // =========================
-  // Envio ao backend
-  // =========================
- // =========================
-  // Envio ao backend (COM TOKEN MANUAL)
+  // Upload do arquivo
   // =========================
   uploadFile(): void {
-    if (!this.selectedFile) return;
+    if (!this.selectedFile) {
+      this.errorMessage = 'Selecione um arquivo antes de enviar.';
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      this.errorMessage = 'Você precisa estar logado para enviar arquivos.';
+      return;
+    }
 
     this.uploading = true;
     this.uploadProgress = 0;
 
-    // 1. Pega o token manualmente do armazenamento
-    const token = localStorage.getItem('access_token');
-    console.log('🔑 Token lido no componente:', token); 
-
-    // 2. Cria o cabeçalho manualmente (PRECISA IMPORTAR HttpHeaders lá em cima!)
-    let headers = new HttpHeaders();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    formData.append('file', this.selectedFile, this.selectedFile.name);
 
-    // 3. Envia a requisição PASSANDO O HEADER EXPLICITAMENTE
-    this.http.post('http://127.0.0.1:5000/api/metadata/upload', formData, {
-      headers: headers, 
+    this.http.post<MetadataResponse>('http://127.0.0.1:5000/api/metadata/upload', formData, {
+      headers,
       reportProgress: true,
       observe: 'events'
     }).subscribe({
       next: (event: any) => {
-        if (event.type === 1 && event.total) {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
           this.uploadProgress = Math.round((event.loaded / event.total) * 100);
         }
 
-        if (event.body) {
-          console.log('✅ Sucesso:', event.body);
-          // Ajuste aqui para bater com o JSON do backend:
-          this.metadata = event.body.file; // Dados do arquivo (tamanho, nome)
-          this.extractedMetadata = event.body.metadados_extraidos; // Dados do Exif/PDF
+        if (event.type === HttpEventType.Response && event.body) {
+          this.metadata = event.body.file;
+          this.extractedMetadata = event.body.metadados_extraidos;
           this.uploading = false;
+
+          this.saveToHistory(this.metadata);
         }
       },
-      error: (err) => {
-        console.error('❌ Erro no upload:', err);
-        this.errorMessage = err.error?.msg || 'Erro ao processar arquivo.';
+      error: (err: any) => {
         this.uploading = false;
+        if (err.status === 401) this.errorMessage = 'Token inválido ou sessão expirada.';
+        else if (err.status === 400) this.errorMessage = err.error?.error || 'Erro ao processar arquivo.';
+        else this.errorMessage = 'Erro desconhecido ao enviar arquivo.';
+        console.error('Upload falhou:', err);
       }
     });
   }
 
   // =========================
-  // HELPERS (As funções que estavam faltando!)
+  // Histórico
   // =========================
-  
-  isImageFile(): boolean {
-    // Verifica se é imagem (backend retorna jpeg ou jpg)
-    return this.fileType === 'jpeg' || (this.selectedFile?.type === 'image/jpeg');
+  private saveToHistory(fileData: any): void {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const body: HistoryItem = {
+      nomeArquivo: fileData.nome || fileData.fileName,
+      formato: fileData.tipo || fileData.type,
+      dataAnalise: new Date().toLocaleDateString(),
+      horaAnalise: new Date().toLocaleTimeString()
+    };
+
+    // Atualiza tabela local
+    this.dataSource.data = [body, ...this.dataSource.data];
+
+    // Salva no backend
+    this.http.post('http://127.0.0.1:5000/api/history/me', body, { headers }).subscribe();
   }
 
-  isPdfFile(): boolean {
-    return this.fileType === 'pdf' || (this.selectedFile?.type === 'application/pdf');
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  private loadHistory() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    this.http.get<HistoryItem[]>('http://127.0.0.1:5000/api/history/me', { headers })
+      .subscribe({
+        next: (data) => {
+          this.dataSource.data = data;
+        },
+        error: (err) => console.error('Falha ao carregar histórico:', err)
+      });
   }
 }

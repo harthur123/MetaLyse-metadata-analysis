@@ -1,5 +1,4 @@
-<!-- upload-metadata.html -->
-
+<!-- src/app/upload-metadata.html -->
 <input
   type="file"
   #fileInput
@@ -8,13 +7,14 @@
 />
 
 <div class="analysis-wrapper">
-
   <h2>Análise de Metadados</h2>
-  <p class="subtitle" *ngIf="!errorMessage">Faça upload de um arquivo (PDF ou JPEG) para visualizar os metadados</p>
+
+  <p class="subtitle" *ngIf="!errorMessage">
+    Faça upload de um arquivo (PDF ou JPEG) para visualizar os metadados
+  </p>
   <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
   <div class="upload-container">
-
     <!-- Dropzone -->
     <div
       class="drop-zone"
@@ -25,10 +25,10 @@
       (click)="fileInput.click()"
       role="button"
       tabindex="0"
-      aria-label="Área de upload"
+      aria-label="Área de upload de arquivo"
     >
       <div class="icon-wrapper">
-        <mat-icon>upload</mat-icon>
+        <mat-icon>cloud_upload</mat-icon>
       </div>
 
       <p class="drop-text">Arraste e solte seu arquivo aqui</p>
@@ -43,15 +43,15 @@
       </button>
     </div>
 
-    <!-- Nome + progresso -->
+    <!-- Nome do arquivo + progresso -->
     <div class="upload-info" *ngIf="selectedFile">
       <div class="file-name">{{ selectedFile.name }}</div>
 
       <mat-progress-bar
         *ngIf="uploading"
         mode="determinate"
-        [value]="uploadProgress">
-      </mat-progress-bar>
+        [value]="uploadProgress"
+      ></mat-progress-bar>
 
       <div *ngIf="uploading" class="progress-text">{{ uploadProgress }}%</div>
     </div>
@@ -65,58 +65,62 @@
     >
       {{ uploading ? 'Enviando...' : 'Analisar' }}
     </button>
-
-  </div> <!-- /upload-container -->
-
-  <!-- Preview -->
-  <div class="preview-container" *ngIf="(previewUrl || safePdfUrl) && !uploading">
-    <img
-      *ngIf="isImageFile() && previewUrl"
-      [src]="previewUrl"
-      alt="Preview da imagem"
-    />
-    <iframe
-      *ngIf="isPdfFile() && safePdfUrl"
-      [src]="safePdfUrl"
-      width="100%"
-      height="400"
-      title="Preview do PDF"
-    ></iframe>
   </div>
 
   <!-- Metadados -->
   <div class="metadata-container" *ngIf="metadata || extractedMetadata">
-
     <h3>Metadados Extraídos</h3>
 
     <!-- PDF -->
     <div *ngIf="fileType === 'pdf'" class="metadata-box">
       <h4>Informações do Arquivo</h4>
-      <p><strong>Nome do arquivo:</strong> {{ metadata?.nome || metadata?.fileName || selectedFile?.name }}</p>
-      <p><strong>Tamanho:</strong> {{ metadata?.tamanho_bytes || metadata?.size || '-' }} </p>
-      <p *ngIf="metadata?.hash"><strong>Hash SHA256:</strong> {{ metadata?.hash }}</p>
+      <p>
+        <strong>Nome:</strong> {{ metadata?.nome || metadata?.fileName || selectedFile?.name }}
+      </p>
+      <p>
+        <strong>Tamanho:</strong> {{ metadata?.tamanho_bytes || metadata?.size || '-' }}
+      </p>
+      <p *ngIf="metadata?.hash">
+        <strong>Hash SHA256:</strong> {{ metadata?.hash }}
+      </p>
 
       <h4>Metadados Técnicos</h4>
-      <p><strong>Data de Criação:</strong> {{ extractedMetadata?.creation_date || extractedMetadata?.FileCreateDate || '-' }}</p>
-      <p><strong>Criador:</strong> {{ extractedMetadata?.creator || extractedMetadata?.creator || '-' }}</p>
+      <p>
+        <strong>Data de Criação:</strong> {{ extractedMetadata?.creation_date || extractedMetadata?.FileCreateDate || '-' }}
+      </p>
+      <p><strong>Criador:</strong> {{ extractedMetadata?.creator || '-' }}</p>
       <p><strong>Produtor:</strong> {{ extractedMetadata?.producer || '-' }}</p>
-      <p><strong>Número de páginas:</strong> {{ extractedMetadata?.page_count || extractedMetadata?.pages || '-' }}</p>
+      <p>
+        <strong>Número de páginas:</strong> {{ extractedMetadata?.page_count || extractedMetadata?.pages || '-' }}
+      </p>
     </div>
 
     <!-- JPEG -->
     <div *ngIf="fileType === 'jpeg'" class="metadata-box">
       <h4>Informações do Arquivo</h4>
-      <p><strong>Nome do arquivo:</strong> {{ metadata?.nome || metadata?.fileName || selectedFile?.name }}</p>
-      <p><strong>Tamanho:</strong> {{ metadata?.tamanho_bytes || metadata?.size || '-' }}</p>
-      <p *ngIf="metadata?.hash"><strong>Hash SHA256:</strong> {{ metadata?.hash }}</p>
+      <p>
+        <strong>Nome:</strong> {{ metadata?.nome || metadata?.fileName || selectedFile?.name }}
+      </p>
+      <p>
+        <strong>Tamanho:</strong> {{ metadata?.tamanho_bytes || metadata?.size || '-' }}
+      </p>
+      <p *ngIf="metadata?.hash">
+        <strong>Hash SHA256:</strong> {{ metadata?.hash }}
+      </p>
 
       <h4>Metadados Técnicos</h4>
-      <p><strong>Largura:</strong> {{ extractedMetadata?.width || extractedMetadata?.ImageWidth || '-' }} px</p>
-      <p><strong>Altura:</strong> {{ extractedMetadata?.height || extractedMetadata?.ImageHeight || '-' }} px</p>
-      <p><strong>Data de Criação:</strong> {{ extractedMetadata?.creation_date || extractedMetadata?.CreateDate || '-' }}</p>
-      <p><strong>Data de Modificação:</strong> {{ extractedMetadata?.modified_date || extractedMetadata?.ModifyDate || '-' }}</p>
+      <p>
+        <strong>Largura:</strong> {{ extractedMetadata?.width || extractedMetadata?.ImageWidth || '-' }} px
+      </p>
+      <p>
+        <strong>Altura:</strong> {{ extractedMetadata?.height || extractedMetadata?.ImageHeight || '-' }} px
+      </p>
+      <p>
+        <strong>Data de Criação:</strong> {{ extractedMetadata?.creation_date || extractedMetadata?.CreateDate || '-' }}
+      </p>
+      <p>
+        <strong>Data de Modificação:</strong> {{ extractedMetadata?.modified_date || extractedMetadata?.ModifyDate || '-' }}
+      </p>
     </div>
-
-  </div> <!-- /metadata-container -->
-
-</div> <!-- /analysis-wrapper -->
+  </div>
+</div>
