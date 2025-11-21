@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
-// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,7 +36,7 @@ export class Login {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  email = localStorage.getItem('saved_email') || '';
+  identifier = '';
   password = '';
   hidePassword = true;
   loading = false;
@@ -51,17 +50,18 @@ export class Login {
   onLogin() {
     this.errorMsg = '';
 
-    if (!this.email || !this.password) {
+    if (!this.identifier || !this.password) {
       this.errorMsg = 'Preencha todos os campos.';
       return;
     }
 
-    if (!this.validateEmail(this.email)) {
+    // Só valida email se realmente for um email
+    if (this.identifier.includes('@') && !this.validateEmail(this.identifier)) {
       this.errorMsg = 'E-mail inválido.';
       return;
     }
 
-    const body = { email: this.email, password: this.password };
+    const body = { identifier: this.identifier, password: this.password };
     this.loading = true;
 
     this.http.post('http://127.0.0.1:5000/api/auth/login', body)
@@ -72,9 +72,9 @@ export class Login {
           localStorage.setItem('access_token', res.access_token);
 
           if (this.remember) {
-            localStorage.setItem('saved_email', this.email);
+            localStorage.setItem('saved_identifier', this.identifier);
           } else {
-            localStorage.removeItem('saved_email');
+            localStorage.removeItem('saved_identifier');
           }
 
           this.router.navigate(['/inicio']);
@@ -82,7 +82,7 @@ export class Login {
         error: (err) => {
           this.loading = false;
           if (err.status === 401) this.errorMsg = 'Senha incorreta.';
-          else if (err.status === 404) this.errorMsg = 'Usuário não encontrado.';
+          else if (err.status === 404) this.errorMsg = 'Usuário ou e-mail não encontrado.';
           else this.errorMsg = 'Erro ao conectar ao servidor.';
         }
       });

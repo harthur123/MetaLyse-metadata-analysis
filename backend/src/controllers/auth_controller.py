@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify, current_app
 from ..models.user import User
 from .. import db
@@ -7,7 +6,6 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from ..models.token_blocklist import TokenBlocklist
 
 # --- IMPORTAÇÃO CORRIGIDA ---
-# Importa os validadores do novo local (utils)
 from ..utils.validators import (
     validate_email_format, 
     validate_password_policy, 
@@ -24,8 +22,6 @@ def register():
     email = data.get('email')
     password = data.get('password')
 
-    # ... (suas validações de campos e de senha) ...
-
     if User.query.filter_by(email=email).first():
         return jsonify({"message": "Email já cadastrado"}), 409
     
@@ -33,16 +29,7 @@ def register():
         return jsonify({"message": "Username já cadastrado"}), 409
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-    # --- CORREÇÃO AQUI ---
-    # Cria um novo usuário. A 'role' será 'user' (padrão)
-    # A lógica de checagem de e-mail para admin foi REMOVIDA
-    new_user = User(
-        username=username, 
-        email=email, 
-        password=hashed_password
-    )
-    # --- FIM DA CORREÇÃO ---
+    new_user = User(username=username, email=email, password=hashed_password)
         
     db.session.add(new_user)
     db.session.commit()
@@ -53,23 +40,23 @@ def register():
 def login():
     """Tela de Login: Autentica o usuário e retorna tokens."""
     data = request.get_json()
-    email = data.get('email')
+    identifier = data.get('identifier')  # <-- AGORA ACEITA EMAIL OU USERNAME
     password = data.get('password')
 
-    if not email or not password:
+    if not identifier or not password:
         return jsonify({"message": "Campos incompletos"}), 400
 
-    user = User.query.filter_by(email=email).first()
+    # --- Identifica se é e-mail ou username ---
+    if '@' in identifier:
+        user = User.query.filter_by(email=identifier).first()
+    else:
+        user = User.query.filter_by(username=identifier).first()
 
-    # 2. Verifica se o email existe
     if not user:
-        # AQUI VOCÊ MUDA A MENSAGEM PARA O FRONT
-        return jsonify({"message": "Este e-mail não está cadastrado."}), 404 # ou 401
+        return jsonify({"message": "Usuário ou e-mail não encontrado."}), 404
 
-    # 3. Se o email existe, verifica a senha
     if not user.check_password(password):
-        # AQUI VOCÊ MANDA OUTRA MENSAGEM
-        return jsonify({"message": "A senha está incorreta."}), 401
+        return jsonify({"message": "Senha incorreta."}), 401
 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
@@ -87,10 +74,8 @@ def reset_password_request():
     email = data.get('email')
     user = User.query.filter_by(email=email).first()
 
-    # --- LÓGICA DE EMAIL CORRIGIDA ---
     if user:
-        send_reset_email(user) 
-    # --- FIM DA LÓGICA DE EMAIL ---
+        send_reset_email(user)
 
     return jsonify({"message": "Se o email estiver cadastrado, um link será enviado."}), 200
 
@@ -106,11 +91,8 @@ def reset_password():
     if not user:
         return jsonify({"message": "Token inválido ou expirado"}), 400
 
-    # --- VALIDAÇÃO ---
-    # Verifica se a NOVA senha também é forte
     if not validate_password_policy(new_password):
         return jsonify({"message": "Senha fraca. Deve ter pelo menos 6 caracteres, maiúscula, minúscula, número e símbolo."}), 400
-    # --- FIM DA VALIDAÇÃO ---
 
     user.set_password(new_password)
     db.session.commit()
@@ -134,20 +116,13 @@ def get_me():
     }), 200
     
 @auth_bp.route('/logout', methods=['POST'])
-@jwt_required() # O usuário deve estar logado para fazer logout
+@jwt_required()
 def logout():
-    """
-    Revoga o Access Token atual.
-    O Frontend é responsável por deletar o Refresh Token.
-    """
+    """Revoga o Access Token atual."""
     try:
-        jti = get_jwt()["jti"] # 'jti' é o ID único do token que o usuário enviou
-        
-        # Adiciona o ID do token na blocklist
+        jti = get_jwt()["jti"]
         db.session.add(TokenBlocklist(jti=jti))
         db.session.commit()
-        
         return jsonify(message="Logout bem-sucedido. O token foi invalidado."), 200
-    
     except Exception as e:
         return jsonify(error=str(e)), 500

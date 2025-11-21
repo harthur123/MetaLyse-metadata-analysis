@@ -28,7 +28,8 @@ def send_reset_email(user):
     token = user.get_reset_token()
     
     # O link para o Angular (Frontend) está correto
-    reset_link = f"http://localhost:4200/reset-password?token={token}"
+    reset_link = f"http://localhost:4200/definir-senha?token={token}"
+
 
     # --- CORREÇÃO AQUI ---
     

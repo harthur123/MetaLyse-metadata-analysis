@@ -1,5 +1,5 @@
 from ..extensions import db
-from ..models.metadata import Metadata # <-- Importa o modelo Metadata
+from ..models.metadata import Metadata  # <--- IMPORTANDO A TABELA CORRETA
 from ..models.user import User
 from sqlalchemy import or_
 
@@ -7,28 +7,26 @@ class HistoryService:
     
     def get_history(self, user_id=None, search_term=None, is_admin=False):
         """
-        Busca o histórico.
-        - Se user_id for passado: Retorna apenas daquele usuário (Visão Usuário).
-        - Se is_admin=True: Retorna de TODOS (Visão Admin).
-        - search_term: Filtra por nome do arquivo, tipo ou nome do autor (se admin).
+        Busca o histórico na tabela METADATA.
         """
-        
-        # Começa a query na tabela Metadata
         query = Metadata.query
 
-        # 1. Filtro de Permissão (Usuário vs Admin)
+        # 1. Lógica de Permissão
         if not is_admin:
+            # SE FOR USUÁRIO COMUM:
             if user_id:
-                query = query.filter_by(user_id=user_id)
+                # Convertemos para int() pois o token JWT pode trazer o ID como string
+                query = query.filter(Metadata.user_id == int(user_id))
             else:
-                return [] # Sem ID e sem admin = nada
+                return [] 
+        # SE FOR ADMIN: Não filtra por ID, vê tudo.
 
-        # 2. Filtro de Pesquisa (Search Bar)
+        # 2. Lógica de Pesquisa (Barra de busca)
         if search_term:
-            search = f"%{search_term}%" # % serve para buscar partes do texto
+            search = f"%{search_term}%"
             
             if is_admin:
-                # Admin pode buscar por Nome do Arquivo OU Nome do Autor
+                # Admin pode buscar por nome do arquivo OU nome do usuário
                 query = query.join(User).filter(
                     or_(
                         Metadata.filename.ilike(search),
@@ -37,23 +35,28 @@ class HistoryService:
                     )
                 )
             else:
-                # Usuário comum busca apenas nos seus arquivos
+                # Usuário comum só busca por nome do arquivo
                 query = query.filter(Metadata.filename.ilike(search))
 
-        # 3. Ordenação (Mais recente primeiro)
-        records = query.order_by(Metadata.upload_date.desc()).all()
+        # 3. Ordenação (Do mais novo para o mais antigo)
+        # Usa upload_date se existir, senão ordena por ID
+        if hasattr(Metadata, 'upload_date'):
+            records = query.order_by(Metadata.upload_date.desc()).all()
+        else:
+            records = query.order_by(Metadata.id.desc()).all()
         
-        return [h.to_dict() for h in records] # <-- Usa o método to_dict()
+        # Retorna lista de dicionários usando o to_dict do modelo
+        return [item.to_dict() for item in records]
 
     def get_by_id(self, metadata_id, user_id, is_admin=False):
-        """Busca um registro específico para detalhes/exportação."""
+        """Busca detalhes de um item específico."""
         record = Metadata.query.get(metadata_id)
         
         if not record:
             return None
             
-        # Segurança: Se não for admin, só pode ver o próprio registro
-        if not is_admin and record.user_id != user_id:
+        # Segurança: Se não for admin, só pode ver se o ID bater
+        if not is_admin and record.user_id != int(user_id):
             return None
             
         return record.to_dict()

@@ -4,7 +4,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Centraliza na tela, garantindo que não colida com o header */
   height: calc(100vh - 64px - 48px); 
   background-color: #fafafa;
 }
@@ -36,4 +35,32 @@ mat-card-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
+}
+
+/* === Mensagem de erro estilizada === */
+.error-message {
+  color: #ff4d4d;
+  background: #ffe6e6;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 15px;
+  border: 1px solid #ffb3b3;
+}
+
+/* Animação suave */
+.animate-error {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -7,23 +7,66 @@
     <mat-card-content>
       <form class="auth-form" (ngSubmit)="definirSenha()">
 
+        <!-- CAMPO NOVA SENHA -->
         <mat-form-field appearance="outline">
           <mat-label>Nova Senha</mat-label>
-          <input matInput type="password" [(ngModel)]="novaSenha" name="novaSenha" required />
+          <input 
+            matInput 
+            type="password" 
+            [(ngModel)]="novaSenha" 
+            name="novaSenha"
+            (input)="validatePassword()"
+            required>
         </mat-form-field>
 
+        @if (passwordErrors.length > 0) {
+          <div style="color: red; font-size: 13px; margin-bottom: 10px;">
+            <ul>
+              @for (err of passwordErrors; track err) {
+                <li>{{ err }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- BARRA DE FORÇA -->
+        <div style="margin-bottom: 15px;">
+          <div style="width: 100%; height: 8px; background: #ddd; border-radius: 4px;">
+            <div 
+              [style.width]="strength + '%'"
+              [style.background]="strengthColor"
+              style="height: 8px; border-radius: 4px; transition: .3s">
+            </div>
+          </div>
+        </div>
+
+        <!-- CONFIRMAR SENHA -->
         <mat-form-field appearance="outline">
           <mat-label>Confirmar Senha</mat-label>
-          <input matInput type="password" [(ngModel)]="confirmarSenha" name="confirmarSenha" required />
+          <input 
+            matInput 
+            type="password" 
+            [(ngModel)]="confirmarSenha" 
+            name="confirmarSenha"
+            required>
         </mat-form-field>
 
-        <div *ngIf="errorMsg" class="error-message">{{ errorMsg }}</div>
-        <div *ngIf="successMsg" class="success-message">{{ successMsg }}</div>
+        <!-- MENSAGENS -->
+        <div *ngIf="errorMsg" style="color:red; margin-bottom:10px;">{{ errorMsg }}</div>
+        <div *ngIf="successMsg" style="color:green; margin-bottom:10px;">{{ successMsg }}</div>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="loading">
-          <span *ngIf="!loading">Definir Senha</span>
-          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-        </button>
+        <div class="actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit">
+            Definir Senha
+          </button>
+
+          <button mat-button type="button" [routerLink]="['/login']">
+            Voltar ao Login
+          </button>
+        </div>
 
       </form>
     </mat-card-content>

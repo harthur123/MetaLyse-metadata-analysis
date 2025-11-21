@@ -1,30 +1,42 @@
-from src.extensions import db
-from sqlalchemy.dialects.postgresql import JSON # ou from sqlalchemy import JSON
-from datetime import datetime # Precisamos disso para o to_dict
+from ..extensions import db
+from datetime import datetime
+from ..models.user import User # Importante para o Admin ver o nome
 
 class Metadata(db.Model):
+    __tablename__ = 'metadata' # Nome da tabela onde o upload salva
+
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
-    filesize = db.Column(db.Integer, nullable=False)
-    filetype = db.Column(db.String(50))
-    upload_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # <- Corrigido
-    filehash = db.Column(db.String(64), nullable=False, unique=True)
+    
+    # Padroniza o tipo de arquivo
+    filetype = db.Column(db.String(50), nullable=False)
+    filesize = db.Column(db.Integer, nullable=True)
+    
+    # O MetadataService salva 'upload_date', usamos ele como padrão
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    filehash = db.Column(db.String(128), nullable=True)
+
+    # Aqui ficam os dados JSON da análise
+    extracted_data = db.Column(db.JSON, nullable=True)
+    
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    extracted_data = db.Column(db.JSON, nullable=True) 
+    
+    # Relacionamento para pegar nome e email do autor
+    user = db.relationship('User', backref=db.backref('metadatas', lazy=True))
 
-    user = db.relationship('User', backref=db.backref('files', lazy=True))
-
-    # --- ADICIONE ESTE MÉTODO ---
     def to_dict(self):
-        """Converte o registro para um JSON que o frontend pode usar."""
+        """Retorna os dados para o Angular."""
         return {
             'id': self.id,
-            'nome_arquivo': self.filename,
-            'tipo_arquivo': self.filetype,
-            'tamanho_bytes': self.filesize,
-            'data_analise': self.upload_date.isoformat(),
-            'hash': self.filehash,
-            'usuario_responsavel': self.user.username, # <-- Pega o nome do usuário
-            'metadados_extraidos': self.extracted_data
+            'filename': self.filename,
+            'filetype': self.filetype,
+            'filesize': self.filesize,
+            # O Angular espera uma data. Enviamos upload_date formatada.
+            'created_at': self.upload_date.isoformat() if self.upload_date else datetime.utcnow().isoformat(),
+            
+            'extracted_data': self.extracted_data,
+
+            # Dados extras para o Admin
+            'author_name': self.user.username if self.user else 'Desconhecido',
+            'author_email': self.user.email if self.user else 'N/A'
         }
-    # --- FIM DA ADIÇÃO ---

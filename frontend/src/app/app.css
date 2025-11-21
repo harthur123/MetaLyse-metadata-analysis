@@ -1,7 +1,7 @@
 /* ARQUIVO: src/app/app.css */
 
 .app-toolbar {
-    background-color: #0c857f; /* Cor de fundo escura */
+    background-color: #0c1a19; /* Cor de fundo escura */
     color: white; /* Cor do texto e ícones */
     padding: 0 16px; /* Espaçamento interno */
     display: flex; /* Para controlar o alinhamento dos itens */

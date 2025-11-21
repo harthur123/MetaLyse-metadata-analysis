@@ -9,31 +9,17 @@
 
         <!-- E-mail -->
         <mat-form-field appearance="outline">
-          <mat-label>E-mail</mat-label>
-          <input 
-            matInput 
-            type="email" 
-            [(ngModel)]="email" 
-            name="email" 
-            required>
+          <mat-label>Usuário ou E-mail</mat-label>
+          <input matInput type="text" [(ngModel)]="identifier" name="identifier" required>
         </mat-form-field>
+
 
         <!-- Senha -->
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
-          <input 
-            matInput 
-            [type]="hidePassword ? 'password' : 'text'"
-            [(ngModel)]="password"
-            name="password"
-            autocomplete="new-password"
-            required>
-          <button 
-            mat-icon-button 
-            matSuffix 
-            type="button" 
-            (click)="hidePassword = !hidePassword"
-            tabindex="-1">
+          <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password"
+            autocomplete="new-password" required>
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword" tabindex="-1">
             <mat-icon>
               {{ hidePassword ? 'visibility' : 'visibility_off' }}
             </mat-icon>
@@ -41,9 +27,10 @@
         </mat-form-field>
 
         <!-- Erros -->
-        <div *gIf="errorMsg" class="error-message">
+        <div *ngIf="errorMsg" class="error-message animate-error">
           {{ errorMsg }}
         </div>
+
 
         <!-- Lembrar -->
         <mat-checkbox [(ngModel)]="remember" name="remember">

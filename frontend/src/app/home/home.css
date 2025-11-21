@@ -1,57 +1,60 @@
 /* ARQUIVO: src/app/home/home.css */
 
 .main-content-container {
-    padding: 40px; /* Espaçamento interno geral */
-    text-align: center; /* Centraliza o texto e elementos inline/inline-block */
-    max-width: 800px; /* Limita a largura do conteúdo para não esticar muito */
-    margin: 40px auto; /* Centraliza o container na página e dá margem superior/inferior */
-    background-color: #ffffff; /* Fundo branco para o container */
-    border-radius: 8px; /* Cantos arredondados */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Sombra suave */
+    padding: 40px;
+    text-align: center;
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
 
-.logo-container {
-    margin-bottom: 30px; /* Espaço abaixo do logo */
-}
-
+/* --- ESTA PARTE ESTAVA FALTANDO NO SEU CSS --- */
 .logo-image {
-    width: 150px; /* Tamanho maior para o logo */
-    height: auto;
-    display: block; /* Para poder aplicar margin auto para centralizar */
-    margin: 0 auto; /* Centraliza a imagem */
+    width: 150px;  /* Define o tamanho */
+    height: 150px; /* Garante que fique quadrada */
+    object-fit: cover; /* Ajusta a imagem sem esticar */
+    display: block;
+    margin: 0 auto 30px auto; /* Centraliza e dá espaço embaixo */
 }
+/* --------------------------------------------- */
 
 .welcome-title {
-    font-size: 3em; /* Título maior */
-    color: #2c3e50; /* Cor escura */
+    font-size: 3em;
+    color: #2c3e50;
     margin-bottom: 20px;
 }
 
 .description-text {
     font-size: 1.1em;
     color: #555;
-    line-height: 1.6; /* Espaçamento entre linhas */
+    line-height: 1.6;
     margin-bottom: 30px;
 }
 
 .security-info {
-    display: flex; /* Para alinhar o ícone e o texto lado a lado */
-    align-items: center; /* Centraliza verticalmente */
-    justify-content: center; /* Centraliza horizontalmente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1em;
     color: #333;
     padding: 15px 20px;
-    background-color: #eaf7f2; /* Fundo suave para a caixa de informação */
+    background-color: #eaf7f2;
     border-radius: 5px;
     border: 1px solid #d4ede3;
-    max-width: 500px; /* Limita a largura da caixa de segurança */
-    margin: 20px auto 0; /* Centraliza a caixa e dá margem */
+    max-width: 500px;
+    margin: 20px auto 0;
 }
 
 .security-info .check-icon {
-    color: #883d00; /* Cor verde para o ícone de check */
+    color: #883d00;
     font-size: 24px;
-    margin-right: 20px; /* Espaço entre o ícone e o texto */
+    margin-right: 20px;
+    /* Ajuste para ícones do Material que as vezes ficam desalinhados */
+    height: 24px; 
+    width: 24px;
+    line-height: 24px;
 }
 
 .security-info .bold-text {
@@ -59,4 +62,3 @@
     color: #212529;
     margin-right: 10px;
 }
-

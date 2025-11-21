@@ -13,6 +13,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 export interface MetadataResponse {
   file: any;
@@ -42,20 +43,21 @@ export interface HistoryItem {
     MatPaginatorModule,
     MatMenuModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatSnackBarModule
   ],
   templateUrl: './upload-metadata.html',
   styleUrls: ['./upload-metadata.css']
 })
 export class UploadMetadata implements OnInit {
   private http = inject(HttpClient);
+  private snackBar = inject(MatSnackBar);
 
   selectedFile: File | null = null;
   metadata: any = null;
   extractedMetadata: any = null;
   uploading: boolean = false;
   uploadProgress: number = 0;
-  errorMessage: string = '';
   fileType: 'pdf' | 'jpeg' | null = null;
 
   displayedColumns: string[] = ['nome_arquivo', 'formato', 'data_analise', 'hora_analise'];
@@ -68,6 +70,18 @@ export class UploadMetadata implements OnInit {
   ngOnInit() {
     this.dataSource.paginator = this.paginator;
     this.loadHistory();
+  }
+
+  // =========================
+  // SnackBar para erros
+  // =========================
+  private showError(message: string) {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['snackbar-error']
+    });
   }
 
   // =========================
@@ -84,13 +98,12 @@ export class UploadMetadata implements OnInit {
     this.fileType = null;
     this.metadata = null;
     this.extractedMetadata = null;
-    this.errorMessage = '';
 
     if (file.type === 'application/pdf') this.fileType = 'pdf';
     else if (file.type === 'image/jpeg') this.fileType = 'jpeg';
     else {
-      this.errorMessage = 'Apenas PDF ou JPEG são suportados!';
       this.selectedFile = null;
+      this.showError('Apenas PDF ou JPEG são suportados!');
     }
   }
 
@@ -119,13 +132,13 @@ export class UploadMetadata implements OnInit {
   // =========================
   uploadFile(): void {
     if (!this.selectedFile) {
-      this.errorMessage = 'Selecione um arquivo antes de enviar.';
+      this.showError('Selecione um arquivo antes de enviar.');
       return;
     }
 
     const token = localStorage.getItem('access_token');
     if (!token) {
-      this.errorMessage = 'Você precisa estar logado para enviar arquivos.';
+      this.showError('Você precisa estar logado para enviar arquivos.');
       return;
     }
 
@@ -156,9 +169,16 @@ export class UploadMetadata implements OnInit {
       },
       error: (err: any) => {
         this.uploading = false;
-        if (err.status === 401) this.errorMessage = 'Token inválido ou sessão expirada.';
-        else if (err.status === 400) this.errorMessage = err.error?.error || 'Erro ao processar arquivo.';
-        else this.errorMessage = 'Erro desconhecido ao enviar arquivo.';
+
+        if (err.status === 401) this.showError('Token inválido ou sessão expirada.');
+        else if (err.status === 400) this.showError(err.error?.error || 'Arquivo já foi analisado anteriormente.');
+        else this.showError('Erro desconhecido ao enviar arquivo.');
+
+        this.selectedFile = null;
+        this.fileType = null;
+        this.metadata = null;
+        this.extractedMetadata = null;
+
         console.error('Upload falhou:', err);
       }
     });
@@ -179,10 +199,7 @@ export class UploadMetadata implements OnInit {
       horaAnalise: new Date().toLocaleTimeString()
     };
 
-    // Atualiza tabela local
     this.dataSource.data = [body, ...this.dataSource.data];
-
-    // Salva no backend
     this.http.post('http://127.0.0.1:5000/api/history/me', body, { headers }).subscribe();
   }
 

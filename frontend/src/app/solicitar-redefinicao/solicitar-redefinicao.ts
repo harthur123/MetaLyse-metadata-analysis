@@ -33,26 +33,38 @@ export class SolicitarRedefinicao {
   errorMsg = '';
 
   solicitarRedefinicao() {
+    if (this.loading) return; // evita duplo envio
+
     this.errorMsg = '';
     this.successMsg = '';
 
-    if (!this.email) {
+    if (!this.email.trim()) {
       this.errorMsg = 'Informe seu e-mail.';
+      return;
+    }
+
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
+    if (!emailValido) {
+      this.errorMsg = 'E-mail inválido.';
       return;
     }
 
     this.loading = true;
 
-    this.http.post('http://127.0.0.1:5000/api/auth/reset-password-request', { email: this.email })
-      .subscribe({
-        next: () => {
-          this.loading = false;
-          this.successMsg = 'Se o e-mail estiver cadastrado, um link será enviado.';
-        },
-        error: (err) => {
-          this.loading = false;
-          this.errorMsg = err.error?.message || 'Erro ao enviar o link.';
-        }
-      });
+    this.http.post('http://127.0.0.1:5000/api/auth/reset-password-request', {
+      email: this.email.trim()
+    })
+    .subscribe({
+      next: () => {
+        this.loading = false;
+        this.successMsg =
+          'Se o e-mail estiver cadastrado, você receberá um link para redefinir sua senha.';
+        this.email = ''; // limpa campo
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMsg = err.error?.message || 'Erro ao enviar o link. Tente novamente.';
+      }
+    });
   }
 }

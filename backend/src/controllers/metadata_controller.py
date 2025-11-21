@@ -26,5 +26,8 @@ def upload_metadata():
             },
             'metadados_extraidos': metadata_extracted
         }), 201
-    except Exception as e:
+    except ValueError as e:
+        # Mensagem amigável para arquivo duplicado
         return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'Erro ao processar o arquivo.'}), 500
